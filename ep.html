@@ -1,0 +1,436 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <meta content="text/html; charset=windows-1252"
+      http-equiv="Content-Type">
+    <title>Extended Precision Test</title>
+  </head>
+  <body>
+    <h1 align="center">Enhanced Precision Comparison<br>
+    </h1>
+    [<a href="http://mpto.unistudios.com/bill/HDR/HDR%20Workflow.html">back
+
+      to main page</a>]<br>
+    <br>
+    Quick check with and without Extended Precision Enabled.<br>
+    <a href="#Part2">Part 2</a>: Compare with using color difference
+    from Rec2020 and Rec709.<br>
+    <br>
+    Results seem to indicate that while there are differences between
+    using this or not they look like they could be 'noisy' enough as to
+    not be visible. Need to test on actual EDR equipment. <br>
+    <br>
+    (Files <a href="http://mpto.unistudios.com/bill/HDR/dev/EP/">Directory)</a><br>
+    <br>
+    <b>Process Used:</b><br>
+    <br>
+    <ul>
+      <li> With and without ExtendedPrecision set</li>
+      <li>I-Frame only</li>
+      <li>QP = 5</li>
+      <li>QHD data</li>
+      <li>PQ 10K nit container, 4K nit ranged content</li>
+      <li>12 bit X'Y'Z' to Y'DzDx data<br>
+      </li>
+      <li>Compress</li>
+      <ul>
+        <li>HM Reference: HM-12.0+RExt-4.0</li>
+        <li><a
+            href="http://mpto.unistudios.com/bill/HDR/dev/EP/10k4k/12bit_I_rext.cfg">CFG</a>
+          default-ish (QP, ExtendedPrecision, InternalBitDepth set via
+          cmd line)<br>
+        </li>
+      </ul>
+      <li>Decode</li>
+      <li>Y'DzDx back to X'Y'Z'</li>
+    </ul>
+    <br>
+    via <a
+      href="http://mpto.unistudios.com/bill/HDR/dev/EP/10k4k/encode.sh">http://mpto.unistudios.com/bill/HDR/dev/EP/10k4k/encode.sh</a><br>
+    <code>../TAppEncoderStatic -c ../../cfg/12bit_I_rext.cfg -i
+      /home/qbit/Documents/HEVC/tiff2ydzdx/10k4k/YDzDx.yuv -wdt 3840
+      -hgt 2160 -fr 24 -f 3 --InputBitDepth=12 --ExtendedPrecision=0
+      -vui 0 -q 5</code><code><br>
+    </code><code><br>
+    </code><code>../TAppEncoderStatic -c ../../cfg/12bit_I_rext.cfg -i
+      /home/qbit/Documents/HEVC/tiff2ydzdx/10k4k/YDzDx.yuv -wdt 3840
+      -hgt 2160 -fr 24 -f 3 --InputBitDepth=12 --ExtendedPrecision=1
+      -vui 0 -q 5</code><br>
+    <br>
+    <br>
+    Comparison using both ImageMagick "Compare" for PSNR and custom tool
+    'tifcmp' for simple image subtraction comparison.<br>
+    <a
+      href="http://mpto.unistudios.com/bill/HDR/dev/EP/10k4k/analyze.sh">http://mpto.unistudios.com/bill/HDR/dev/EP/10k4k/analyze.sh</a><br>
+    Log file: <a
+      href="http://mpto.unistudios.com/bill/HDR/dev/EP/10k4k/log">http://mpto.unistudios.com/bill/HDR/dev/EP/10k4k/log</a><br>
+    <br>
+    Results:<br>
+    <br>
+    <b>Extended Precision Processing</b> compared with <b>no Extended
+      Precision</b>:<br>
+    <ul>
+      <li>Image Magick 'compare' PSNR<br>
+      </li>
+      <li><small><code>&nbsp; Channel distortion: PSNR</code><code><br>
+          </code><code>&nbsp;&nbsp;&nbsp; red: 50.8237</code><code>&nbsp;&nbsp;
+
+
+
+
+
+
+
+
+
+
+            =</code><code> X'</code><code><br>
+          </code><code>&nbsp;&nbsp;&nbsp; green: 56.4574 = Y'</code><code><br>
+          </code><code>&nbsp;&nbsp;&nbsp; blue: 49.9182</code><code>&nbsp;
+
+
+
+
+
+
+
+
+
+
+            = Z'</code></small></li>
+      <li>HM Encode Summary (no Extended Precision)<br>
+      </li>
+      <ul>
+        <li><code>SUMMARY
+            --------------------------------------------------------<br>
+            &nbsp;&nbsp;&nbsp; Total Frames |&nbsp;&nbsp;
+            Bitrate&nbsp;&nbsp;&nbsp;&nbsp; Y-PSNR&nbsp;&nbsp;&nbsp;
+            U-PSNR&nbsp;&nbsp;&nbsp; V-PSNR&nbsp;&nbsp;&nbsp; YUV-PSNR <br>
+            &nbsp;&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            3&nbsp;&nbsp;&nbsp; a&nbsp; 966757.6320&nbsp;&nbsp;
+            58.5338&nbsp;&nbsp; 58.0068&nbsp;&nbsp; 57.6837&nbsp;&nbsp;
+            58.2908</code><br>
+        </li>
+      </ul>
+      <li>HM Encode Summary (with Extended Precision)</li>
+      <ul>
+        <li><code>SUMMARY
+            --------------------------------------------------------<br>
+            &nbsp;&nbsp;&nbsp; Total Frames |&nbsp;&nbsp;
+            Bitrate&nbsp;&nbsp;&nbsp;&nbsp; Y-PSNR&nbsp;&nbsp;&nbsp;
+            U-PSNR&nbsp;&nbsp;&nbsp; V-PSNR&nbsp;&nbsp;&nbsp; YUV-PSNR <br>
+            &nbsp;&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            3&nbsp;&nbsp;&nbsp; a&nbsp; 957632.1280&nbsp;&nbsp;
+            58.3696&nbsp;&nbsp; 57.8806&nbsp;&nbsp; 57.6905&nbsp;&nbsp;
+            58.1656</code><br>
+        </li>
+      </ul>
+      <li>tifcmp comparison (abs difference written using RGB 8-bit as
+        the differences are small in all but a couple pixels far less
+        than 255)</li>
+      <ul>
+        <li><a
+href="http://mpto.unistudios.com/bill/HDR/dev/EP/10k4k/CompareEP12-2-EP0.tif">http://mpto.unistudios.com/bill/HDR/dev/EP/10k4k/CompareEP12-2-EP0.tif</a></li>
+        <li>JPG visual of difference (should be nearly black and non
+          correlated noise)<br>
+        </li>
+      </ul>
+    </ul>
+    <div align="center"><img alt="EP to non EP difference"
+src="http://mpto.unistudios.com/bill/HDR/dev/EP/10k4k/CompareEP12-2-EP0.jpg"
+        height="270" width="480"><br>
+    </div>
+    <br>
+    <br>
+    <br>
+    <br>
+    <b>Source (before compression)</b> compared <b>with no </b>Extended
+
+
+
+
+
+
+
+
+
+
+    Precision:<br>
+    <br>
+    <ul>
+      <li>&nbsp;&nbsp;&nbsp; Image Magick 'compare' PSNR</li>
+      <ul>
+        <li>
+          <pre>  Channel distortion: PSNR
+    red: 50.8629
+    green: 58.5665
+    blue: 51.1489
+    </pre>
+        </li>
+      </ul>
+    </ul>
+    <br>
+    <ul>
+      <li>&nbsp;&nbsp;&nbsp; tifcmp comparison (abs difference written
+        using RGB 8-bit as the differences are small in all but a couple
+        pixels far less than 255)</li>
+      <ul>
+        <li><a
+            href="http://mpto.unistudios.com/bill/HDR/dev/EP/10k4k/CompareS2EP0.tif">http://mpto.unistudios.com/bill/HDR/dev/EP/10k4k/CompareS2EP0.tif</a></li>
+        <li>(JPG view) <small><a
+              href="http://mpto.unistudios.com/bill/HDR/dev/EP/10k4k/CompareS2EP0.jpg">http://mpto.unistudios.com/bill/HDR/dev/EP/10k4k/CompareS2EP0.jpg</a></small></li>
+      </ul>
+    </ul>
+    <br>
+    <br>
+    <b>S</b><b>ource (before compression)</b> compared <b>with</b>
+    Extended Precision:<br>
+    <br>
+    <ul>
+      <li>Image Magick 'compare' PSNR</li>
+      <ul>
+        <li>
+          <pre>  Channel distortion: PSNR
+    red: 50.8383
+    green: 58.414
+    blue: 51.0318
+</pre>
+          <code></code></li>
+      </ul>
+      <li>&nbsp; tifcmp comparison (abs difference written using RGB
+        8-bit as the differences are small in all but a couple pixels
+        far less than 255)</li>
+      <ul>
+        <li><a
+href="http://mpto.unistudios.com/bill/HDR/dev/EP/10k4k/CompareS2EP12.tif">http://mpto.unistudios.com/bill/HDR/dev/EP/10k4k/CompareS2EP12.tif</a></li>
+        <li>(JPG view) <small><a
+href="http://mpto.unistudios.com/bill/HDR/dev/EP/10k4k/CompareS2EP12.jpg">http://mpto.unistudios.com/bill/HDR/dev/EP/10k4k/CompareS2EP12.jpg</a></small></li>
+      </ul>
+    </ul>
+    <small><br>
+      <i><br>
+      </i></small><i>For consideration: Need to show that 50 dB PSNR
+      would be more than adequate for even the most minimal amount of
+      JND change. Also could consider developing a PSNR metric for PQ
+      data that we feel is representative.</i><br>
+    <br>
+    <br>
+    <br>
+    Files:<br>
+    Source <small><a
+        href="http://mpto.unistudios.com/bill/HDR/dev/EP/10k4k/Source00000.tif">http://mpto.unistudios.com/bill/HDR/dev/EP/10k4k/Source00000.tif</a></small><br>
+    Output EP Off&nbsp; <small><a
+        href="http://mpto.unistudios.com/bill/HDR/dev/EP/10k4k/EP0-Out.tif">http://mpto.unistudios.com/bill/HDR/dev/EP/10k4k/EP0-Out.tif</a></small><br>
+    Output EP On&nbsp; <small><a
+        href="http://mpto.unistudios.com/bill/HDR/dev/EP/10k4k/EP-Out.tif">http://mpto.unistudios.com/bill/HDR/dev/EP/10k4k/EP-Out.tif</a></small><br>
+    <br>
+    Compressed output (no Extended Precision) 15.105611 MB<br>
+    <a
+      href="http://mpto.unistudios.com/bill/HDR/dev/EP/10k4k/strEP0.bin">http://mpto.unistudios.com/bill/HDR/dev/EP/10k4k/strEP0.bin</a><br>
+    <br>
+    Compressed output (Extended Precision)&nbsp; 14.963025 MB<br>
+    <a
+      href="http://mpto.unistudios.com/bill/HDR/dev/EP/10k4k/strEP12.bin">http://mpto.unistudios.com/bill/HDR/dev/EP/10k4k/strEP12.bin</a><br>
+    <br>
+    Extended Precision (@ QP = 5) made file only file only 0.94%
+    smaller!<br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h3><a name="Part2"></a>Part 2: Compare with using color difference
+      from Rec2020 and Rec709.</h3>
+    <br>
+    Ran same tests as above but instead of using Y'DzDx color
+    differences used traditional Rec2020 and Rec709 formulas. These were
+    taken from the specs and implemented in tiff2ydzdx.cpp/ydzdx2tiff as
+    floating point (rather than pure integer as Y'DzDx) but since going
+    into 12 bits should be adequate.<br>
+    <br>
+    Results seem to show that the subtractive difference between source
+    and decompressed is more noise-like, little structure of the image.<br>
+    <br>
+    Files (<a
+      href="http://mpto.unistudios.com/bill/HDR/dev/EP/10k4k-709/">709
+      test</a>)<br>
+    <br>
+    Files (<a
+      href="http://mpto.unistudios.com/bill/HDR/dev/EP/10k4k-2020/">2020
+      test</a>)<br>
+    <br>
+    <h4>709 Test: (no EP results here)<br>
+    </h4>
+    <ul>
+      <li>Image Magick PSNR</li>
+      <ul>
+        <li>
+          <pre>  Channel distortion: PSNR
+    red: 52.444
+    green: 57.3527
+    blue: 51.6356
+</pre>
+        </li>
+      </ul>
+      <li>HM Encoder output:</li>
+      <ul>
+        <li><code>SUMMARY
+            --------------------------------------------------------<br>
+            &nbsp;&nbsp;&nbsp; Total Frames |&nbsp;&nbsp;
+            Bitrate&nbsp;&nbsp;&nbsp;&nbsp; Y-PSNR&nbsp;&nbsp;&nbsp;
+            U-PSNR&nbsp;&nbsp;&nbsp; V-PSNR&nbsp;&nbsp;&nbsp; YUV-PSNR <br>
+            &nbsp;&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            3&nbsp;&nbsp;&nbsp; a&nbsp; 995766.6560&nbsp;&nbsp;
+            58.4873&nbsp;&nbsp; 57.9846&nbsp;&nbsp; 57.6155&nbsp;&nbsp;
+            58.2445</code><br>
+        </li>
+      </ul>
+    </ul>
+    <br>
+    <br>
+    <h4>2020 Test: (no EP results here)<br>
+    </h4>
+    <ul>
+      <li>Image Magick PSNR</li>
+      <ul>
+        <li>
+          <pre>  Channel distortion: PSNR
+    red: 52.8628
+    green: 56.9744
+    blue: 51.5422
+</pre>
+          <code></code></li>
+      </ul>
+      <li>HM Encoder output:</li>
+      <ul>
+        <li><code>SUMMARY
+            --------------------------------------------------------<br>
+            &nbsp;&nbsp;&nbsp; Total Frames |&nbsp;&nbsp;
+            Bitrate&nbsp;&nbsp;&nbsp;&nbsp; Y-PSNR&nbsp;&nbsp;&nbsp;
+            U-PSNR&nbsp;&nbsp;&nbsp; V-PSNR&nbsp;&nbsp;&nbsp; YUV-PSNR <br>
+            &nbsp;&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            3&nbsp;&nbsp;&nbsp; a&nbsp; 996491.5840&nbsp;&nbsp;
+            58.4892&nbsp;&nbsp; 57.9812&nbsp;&nbsp; 57.6074&nbsp;&nbsp;
+            58.2435</code><br>
+        </li>
+      </ul>
+    </ul>
+    <h3><a name="Summary"></a>Summary:</h3>
+    This table for PSNR is comparing the YUV file (converted back to
+    X'Y'Z') input to the HEVC encoder to the decoder output YUV file
+    (converted to X'Y'Z')<br>
+    <br>
+    <small>(note: added PSNR calculation into <a
+        href="http://mpto.unistudios.com/bill/HDR/dev/tifcmp.cpp">tifcmp.cpp</a>
+      and indicated in table here as reference)</small><br>
+    <br>
+    <table border="1" cellpadding="2" cellspacing="2" height="180"
+      width="669">
+      <tbody>
+        <tr>
+          <td align="right" valign="top">Test</td>
+          <td align="center" valign="top"><small>Bitrate<br>
+            </small></td>
+          <td align="center" valign="top"><small>Y' PSNR<br>
+              (ImageMagick)<br>
+            </small></td>
+          <td align="center" valign="top"><small>Y' PSNR<br>
+              (from encoder)<br>
+            </small></td>
+          <td align="center" valign="top"><small>Y' PSNR<br>
+              (to 444 source)<br>
+            </small></td>
+        </tr>
+        <tr>
+          <td align="right" valign="top"><small>Y'DzDx EP on<br>
+            </small></td>
+          <td align="center" valign="top"><code>957632.1280</code></td>
+          <td align="center" valign="top">
+            <pre>58.414<br>(tifcmp = 58.415268)<br></pre>
+          </td>
+          <td align="center" valign="top"><code>58.3696</code></td>
+          <td align="center" valign="top"><small>(not tested)</small><br>
+          </td>
+        </tr>
+        <tr>
+          <td align="right" valign="top"><small>Y'DzDx EP off<br>
+            </small></td>
+          <td align="center" valign="top"><code>966757.6320</code></td>
+          <td align="center" valign="top">
+            <pre>58.5665<br>(tifcmp = 58.567710)<br></pre>
+          </td>
+          <td align="center" valign="top"><code>58.5338</code></td>
+          <td align="center" bgcolor="#99ff99" valign="top"><code>58.5144<br>
+              (tifcmp = 58.476550)<br>
+            </code></td>
+        </tr>
+        <tr>
+          <td align="right" valign="top"><small>709 EP off<br>
+            </small></td>
+          <td align="center" valign="top"><code>995766.6560</code></td>
+          <td align="center" valign="top">
+            <pre>57.3527<br>(tifcmp = 57.353993)<br></pre>
+          </td>
+          <td align="center" valign="top"><code>58.4873</code></td>
+          <td align="center" bgcolor="#ffcccc" valign="top"><code>51.9917</code><code><br>
+              (tifcmp = 51.987405)<br>
+            </code></td>
+        </tr>
+        <tr>
+          <td align="right" valign="top"><small>2020 EP off<br>
+            </small></td>
+          <td align="center" valign="top"><code>996491.5840</code></td>
+          <td align="center" valign="top">
+            <pre>56.9744<br>(tifcmp = 56.975681)<br></pre>
+          </td>
+          <td align="center" valign="top"><code>58.4892</code></td>
+          <td align="center" bgcolor="#ffcccc" valign="top"><code>51.6</code><code><br>
+              (tifcmp = 51.591292)<br>
+            </code></td>
+        </tr>
+      </tbody>
+    </table>
+    <br>
+    (<a
+      href="http://mpto.unistudios.com/bill/HDR/HDR%20Workflow.html#tifcmp">tifcmp</a>
+    details on prior page)<br>
+    Example:&nbsp; <small><code>../../../../tifcmp/tifcmp
+        tifXYZS/XpYpZp00000.tif tifXYZEP0/XpYpZp00000.tif</code></small><br>
+    <h4>Comparison to 444 source:</h4>
+    <p><small><code>(cmd: compare -metric PSNR -verbose -depth 12
+          ../10k4k/A003_CROP_444PQ_SRC.tif tifXYZEP0/XpYpZp00000.tif
+          diffPQSRC444.jpg)</code></small><br>
+    </p>
+    <br>
+    Y'DzDx (decoded to X'Y'Z')<br>
+    <code>&nbsp; Channel distortion: PSNR</code><code><br>
+    </code><code>&nbsp;&nbsp;&nbsp; red: 43.6231</code><code><br>
+    </code><code>&nbsp;&nbsp;&nbsp; green: 58.5144</code><code><br>
+    </code><code>&nbsp;&nbsp;&nbsp; blue: 35.8717</code><code><br>
+    </code><br>
+    <br>
+    2020 yuv (decoded to X'Y'Z')<br>
+    <code>&nbsp; Channel distortion: PSNR</code><code><br>
+    </code><code>&nbsp;&nbsp;&nbsp; red: 46.956</code><code><br>
+    </code><code>&nbsp;&nbsp;&nbsp; green: 51.6</code><code><br>
+    </code><code>&nbsp;&nbsp;&nbsp; blue: 36.9306</code><code><br>
+    </code><br>
+    <br>
+    709 yuv (decoded to X'Y'Z')<br>
+    <code>&nbsp; Channel distortion: PSNR</code><code><br>
+    </code><code>&nbsp;&nbsp;&nbsp; red: 46.5272</code><code><br>
+    </code><code>&nbsp;&nbsp;&nbsp; green: 51.9917</code><code><br>
+    </code><code>&nbsp;&nbsp;&nbsp; blue: 36.9563</code><code><br>
+    </code><br>
+    <br>
+    It appears that both the 709 and 2020 difference equations (when
+    applied to X'Y'Z' data) in Y' (e.g. green) are substantially below
+    X' and Z'.<br>
+    <br>
+    <br>
+    <br>
+  </body>
+</html>

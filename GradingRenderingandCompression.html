@@ -1,0 +1,113 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <meta content="text/html; charset=windows-1252"
+      http-equiv="Content-Type">
+    <title>Grading, Rendering and Compression</title>
+  </head>
+  <body>
+    <small> </small>
+    <h1 align="center">Grading, Rendering and Compression<br>
+    </h1>
+    <small> </small>
+    <div align="right"><small> Bill Mandel<br>
+        April 2015<br>
+      </small></div>
+    <small> </small>
+    <h2><small> Introduction:</small></h2>
+    <small><br>
+      An "ACES" style workflow and compression follows the following
+      basic steps:</small><br>
+    <ul>
+      <li><small>Camera Recording</small></li>
+      <li><small>Conformance into ACES through an Input Display
+          Transform "IDT". These are the souce images in EXR format, D60
+          whitepoint and ACES color space used for color grading.</small></li>
+      <li><small>Color Grading (while viewing the result through an
+          RRT+ODT on a reference monitor).&nbsp; The color grade,
+          without the RRT+ODT rendering, is baked into a set of EXRs
+          that remain ACES color space, D60 whitepoint. This is
+          sometimes called "ACES'" or Graded and Pre-Rendered files.</small></li>
+      <li><small>Rendering the Color Grade using a Reference Rendering
+          Transform (RRT) and a Output Display Transform (ODT). The RRT
+          imparts the slope increase to convert scene referred light
+          (photons) into display referred light (indoor viewing) and the
+          ODT further adjusts the color space and display EOTF to match
+          the desired deliverable conditions. This is the "master" used
+          for distribution.</small></li>
+      <li><small>YUV processing. For 4:2:0 transport streams a FIR
+          filter subsampling process is used for HDR to avoid issues
+          that are present from simple box, triangle or other
+          subsamplers in some of the tools currently used for SDR.</small></li>
+      <li><small>HEVC compression</small></li>
+    </ul>
+    <small><br>
+      <br>
+    </small>
+    <hr size="2" width="100%"><b>Rendering: RRT + ODT</b><b>:</b><br>
+    <br>
+    You'll need to select a RRT and ODT to use based on the information
+    provided from the grading suite. Currently this is under
+    investigation by many people:<br>
+    <a href="https://github.com/ampas/aces-dev/tree/v1.0"><br>
+      AMPAS/ACES</a>: With version 1.0 there are three experimental ODTs
+    provided for 1000, 2000 and 4000 nits. Supports P3 D60 PQ only.<br>
+    <br>
+    <a
+      href="https://github.com/quantizationbit/DPXEXR/tree/master/nugget">Nugget:</a>
+    This transform is under development by Gary Demos and it attempting
+    to address rendering issues that are unique to HDR in the 200-1000+
+    nit range in terms of color management through rendering and in
+    display adaptation. Very specific in support of P3, D60, Gamma or PQ
+    output.<br>
+    <br>
+    <a href="https://github.com/quantizationbit/CTLs">v71:</a>&nbsp;
+    This is a modification of the AMPAS/ACES v71 video ODTs where the
+    ODT tone curve is lifted to the desired HDR output range. It is
+    setup to support any range of HDR and display colorspace.<br>
+    <br>
+    <a href="https://github.com/quantizationbit/CTLa1">v10:</a> This is
+    a modification by Bill Mandel of the AMPAS/ACES v10 video ODTs where
+    the ODTs were modified to support D65, Rec709/2020 color and some
+    change to the 1000 nit output.<br>
+    <br>
+    For each of these a command line script that either runs "ctl" files
+    as a direct compute using ctlrender or implements the transform as a
+    LUT is needed to implement.<br>
+    <br>
+    <hr size="2" width="100%"><b>YUV:</b><br>
+    <br>
+    This <a href="https://github.com/quantizationbit/YUV">tool</a>
+    developed by Bill Mandel with the subsampling FIR filter contributed
+    by Chad Fogg implements creation of a YUV frame from a TIFF input
+    file. Many options are provided:&nbsp; HD, UHD, Rec709, Rec2020,
+    YDzDx, Non-Constant Luminance, Constant Luminance.&nbsp; It is used
+    in a loop as the tool reads one tiff and appends it to a YUV file.<br>
+    <br>
+    <br>
+    <hr size="2" width="100%"><b>HEVC:</b><br>
+    <br>
+    Multiple tools exist from many vendors:&nbsp; Multicoreware (x265),
+    Vanguard, ATEME, ...<br>
+    <br>
+    As <a href="https://bitbucket.org/multicoreware/x265/wiki/Home">x265</a>
+    is open source it is straightforward to use for examples.<br>
+    <br>
+    <hr size="2" width="100%"><br>
+    <b>Examples:</b><br>
+    <br>
+    Recently (April 2015) the UHDSC at the ASC has been looking at
+    producing content for display interoperability testing and
+    discussion and multiple grades were created to assist with better
+    understanding issues around HDR.&nbsp; One of these grades was
+    created with v71 and v10 above and there is a version of Nugget
+    above that has a very similar look to v71.&nbsp; Below are some
+    examples of processing this graded but pre-rendered material output
+    from this grading session:<br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <small></small>
+  </body>
+</html>

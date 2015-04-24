@@ -1,0 +1,264 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <meta content="text/html; charset=windows-1252"
+      http-equiv="Content-Type">
+    <title>Pattern6 Animation Testing</title>
+  </head>
+  <body>
+    <small> </small>
+    <h1 align="center"><small>"Pattern6 Animation Testing for Banding"</small></h1>
+    <small> </small>
+    <div align="right"><small> Bill Mandel<br>
+        August 2014<br>
+      </small></div>
+    <small> <br>
+      <br>
+    </small>
+    <h2><small> Introduction:</small></h2>
+    <small>The objective here was to make a simple animated pattern to
+      show banding at the limit of visibility to test performance of 10
+      and 12 bit displays.&nbsp; To give the eye something to track it
+      was decided to animate a simple bouncing ball. To show a banding
+      pattern a gray field was chosen which will be modified in color
+      (and luminance) by a "percent" input parameter to the frame
+      animation program as follows:<br>
+      <br>
+      - Pattern size is 1920x1080<br>
+      - input "-frame &lt;number&gt;" caused the program to write a n<sup>th</sup>
+      single frame.<br>
+      - input "-speed &lt;number&gt;" sets the speed of the bouncing
+      ball. A low speed like 3 is good if rendering the frames at 24
+      fps. At 23.976 fps rendering the ball moves 30 pixels per second
+      horizontally and 10 pixels per second vertically with speed=1 or
+      1.25*speed pixels per frame horizontally and 0.42*speed pixels per
+      frame vertically.<br>
+      - input "-percent &lt;number&gt;" is the percent of variation
+      applied to the image used at +/- that percent.&nbsp; Percent is
+      relative to the gray level of the image. Described below:<br>
+      <br>
+      The objective is to be able to make any frame of the pattern (e.g.
+      -input #) and then later scale the pattern up and down to be able
+      to use it at any brightness setting that way a sequence of frames
+      can be used across a large range of f-stops.<br>
+      <br>
+      Each frame is written the same way as a full scale 16 bit integer
+      TIFF (0-65535):<br>
+      - gray level is 32000<br>
+      - one percent is 320<br>
+      <br>
+      This is done so that variation is created in percent from gray and
+      allows the created images to be used at any brightness setting yet
+      still have the same percent variation which is important when
+      visually looking for variation at Barten/Weber levels of 0.2%-5%
+      (nominally 0.5%-1%) <br>
+      <br>
+      Each frame is constructed so that luminance and color ramps are
+      created from the bouncing ball to the four corners, top-center and
+      bottom-center of the image. The bouncing ball is gray with a level
+      of minus "percent" from the gray level.<br>
+      <br>
+      Each pixel value outside the ball is computed as follows:<br>
+      - distance from the pixel to each of the 4 corners and mid points
+      listed.<br>
+      - distance from the edge of the ball to the current pixel<br>
+      - "ramp" scaler of distance to corner divided by total ball to
+      pixel and pixel to corner distance. This will be near zero when
+      the ball is close to a wall/corner and approach 0.25 to 0.5 when
+      the ball is distant from a corner/wall. A scale factor of
+      (1-ramp)*percent is used to offset RGB (color/luminance)<br>
+      <br>
+      This will result in color/luminance ramps over the entire field of
+      the image to each corner and top bottom spots.<br>
+      <br>
+      Top-Left:&nbsp; Red plus<br>
+      Bottom-Left: Red minus<br>
+      Top-Right: Blue plus<br>
+      Bottom-Right: Blue minus<br>
+      Top-Center: Green minus<br>
+      Bottom-Center Green plus<br>
+    </small><br>
+    <div align="left"><small> As an example below is the direct output
+        from: <code>./pattern6 -frame 125 -speed 3 -percent 50</code></small><br>
+      <br>
+      <div align="center"><img alt=""
+          src="http://mpto.unistudios.com/bill/HDR/P6/00125.jpg"
+          height="203" width="360"><br>
+        <small>Pattern6 output frame sample.<br>
+        </small>
+        <div align="left"><small><br>
+            For the HDR banding test a sequence of frames were generated
+            at many brightness levels each RGB frame was treated as P3
+            RGB and put into a Rec 2020 EXR container (linear) as well
+            as a 10000 nit PQ Rec 2020 TIFF container. At each
+            brightness level two frames were created.<br>
+            <br>
+            To give an idea of this sequence it was tone mapped to 1000
+            nits and put into a normal 8-bit 709 container and AVC
+            compressed to play back at 2 fps. (<a
+href="https://github.com/quantizationbit/Patterns/blob/master/P6rangeSDR.sh">code</a>)</small><br>
+        </div>
+      </div>
+      <br>
+    </div>
+    <small> <br>
+      <div align="center"> <video controls="controls" height="288"
+          width="512"> <source
+            src="http://mpto.unistudios.com/bill/HDR/P6/709.mp4"> </video>
+      </div>
+    </small>
+    <div align="center">
+      <table width="100%" align="center" cellpadding="2" cellspacing="2">
+        <tbody>
+          <tr>
+            <td valign="top"><br>
+            </td>
+            <td valign="top" width="50%"><small> HDR Pattern mapped down
+                to 800 nit range Rec 709/Rec1886 as AVC only to give
+                course idea of the pattern frames</small></td>
+            <td valign="top"><br>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <br>
+    </div>
+    <small> <br>
+      Source code used for the pattern6 generation: (<a
+href="https://github.com/quantizationbit/Patterns/blob/master/pattern6.cpp">code</a>)</small><br>
+    <br>
+    <h3>Specific Test Details:<br>
+    </h3>
+    <small>Sequence generation. (<a
+href="https://github.com/quantizationbit/Patterns/blob/master/P6range.sh">code</a>)&nbsp;
+
+      A test sequence was generated using speed of 3 and a -percent
+      option of 25% as input to pattern6.&nbsp; This output was then:<br>
+    </small>
+    <ol>
+      <li><small>Multiplied from P3 to 2020 (e.g. treat the original RGB
+          as P3)</small></li>
+      <li><small>Scaled to a variety of display <a
+href="https://github.com/quantizationbit/Patterns/blob/master/P6range.sh#L21">nit
+
+            levels between</a> 0.005 and 10000 and written to linear EXR
+          half float as well as 10000 nit PQ 16 bit TIFF</small></li>
+      <li><small>Roundoff/truncated to 10, 12 and 14 bits PQ TIFF</small></li>
+      <ul>
+        <li><small><a href="#EvaluateBitDepthPerformance">See Evaluate
+              Bit Depth Performance below</a><br>
+          </small></li>
+      </ul>
+      <li><small>Written to Rec 2020 YUV at 10, 12 and 14 bits using YUV
+          tool</small></li>
+      <ul>
+        <li><small><a href="#Evaluate_Color_Subsampling_Performance:">See
+
+              Evaluate Color Subsampling Performance below</a><br>
+          </small></li>
+      </ul>
+      <li><small>HEVC compressed using HM with QP=12</small></li>
+      <ul>
+        <li><small><a href="#EvaluateHEVCPerformance">See Evaluate HEVC
+              Performance below</a></small><br>
+        </li>
+      </ul>
+    </ol>
+    <small> All five steps are run from a single shell script (<a
+href="https://github.com/quantizationbit/Patterns/blob/master/P6RunAll.sh">code</a>).<br>
+      <br>
+      Please see the actual data files generated and used in the tests
+      at this link.<br>
+    </small><small><a
+        href="https://github.com/quantizationbit/Patterns/tree/master/animation">Data
+
+
+
+
+
+
+        Files</a> (Source.exr.tgz, C-1#b.yuv.tgz, HM-C-1#b.bin).&nbsp; <br>
+      <br>
+      <big><i>I would like to find someone willing to play all of these
+          "Source", "yuv" and "bin" on a 12 bit HDR monitor and evaluate
+          the extent of banding in the YUV and BIN files - especially
+          the 10 bit YUV and 10 bit HEVC.</i></big><br>
+    </small>
+    <div align="center">
+      <div align="left">
+        <h3><a name="EvaluateBitDepthPerformance"></a>Evaluate Bit Depth
+          Performance</h3>
+        <p><small>From step #3 above the pattern sequence was set to 10,
+            12 and 14 bits respectively all using the 10000 nit PQ
+            Integer container. Each result was compared with the 16 bit
+            Integer version using sigma_compare and plotted below to
+            show the self relative one sigma variation (loss).</small><br>
+        </p>
+        <div align="center"><img alt=""
+src="https://raw.githubusercontent.com/quantizationbit/Patterns/master/animation/CMP16-10b.png"
+            height="600" width="800"><br>
+          <img alt=""
+src="https://raw.githubusercontent.com/quantizationbit/Patterns/master/animation/CMP16-12b.png"
+            height="300" width="400">&nbsp; <img alt=""
+src="https://raw.githubusercontent.com/quantizationbit/Patterns/master/animation/CMP16-14b.png"
+            height="300" width="400"><br>
+        </div>
+        <h3><br>
+        </h3>
+        <br>
+        <div align="center">
+          <div align="left"> <br>
+            <h3><a name="Evaluate_Color_Subsampling_Performance:"></a>Evaluate
+
+              Color Subsampling Performance:</h3>
+            <p><small>The results from step #4 above (10, 12 and 14 bit
+                PQ) of the sequence were subsampled into a Rec2020 4:2:0
+                container and then restored back to RGB and then
+                compared using sigma_compare to the 16 bit Integer
+                version and plotted to show the one sigma RMSE variation
+                (loss).</small><br>
+            </p>
+            <div align="center"><small><img alt=""
+src="https://raw.githubusercontent.com/quantizationbit/Patterns/master/animation/CMP16-YUV-10b.png"
+                  height="600" width="800"><br>
+                <img alt=""
+src="https://raw.githubusercontent.com/quantizationbit/Patterns/master/animation/CMP16-YUV-12b.png"
+                  height="300" width="400">&nbsp; <img alt=""
+src="https://raw.githubusercontent.com/quantizationbit/Patterns/master/animation/CMP16-YUV-14b.png"
+                  height="300" width="400"><br>
+              </small></div>
+            <small> </small><br>
+            <br>
+            <br>
+            <h3><a name="EvaluateHEVCPerformance"></a>Evalute HEVC
+              Performance:</h3>
+            <p><small>The YUV files created for the prior plots (step
+                #4) were then I-Frame HEVC compressed using qp=12. The
+                resulting bin files were then decoded to YUV and
+                re-sampled back to RGB and compared using sigma_compare
+                to the 16 bit Integer version and plotted. Note there is
+                very little degradation from the YUV step, but also no
+                noise in these patterns so HEVC is clearly able to at
+                this setting nearly losslessly compress this pattern. So
+                is there banding visible?</small><br>
+            </p>
+            <div align="center"><img alt=""
+src="https://raw.githubusercontent.com/quantizationbit/Patterns/master/animation/CMP16-HEVC-HM-10b.png"
+                height="600" width="800"></div>
+            <div align="center"><img alt=""
+src="https://raw.githubusercontent.com/quantizationbit/Patterns/master/animation/CMP16-HEVC-HM-12b.png"
+                height="300" width="400">&nbsp; <img alt=""
+src="https://raw.githubusercontent.com/quantizationbit/Patterns/master/animation/CMP16-HEVC-HM-14b.png"
+                height="300" width="400"><br>
+            </div>
+            <p><br>
+            </p>
+            <p><br>
+              <br>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

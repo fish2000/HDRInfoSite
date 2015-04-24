@@ -1,0 +1,607 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <meta content="text/html; charset=windows-1252"
+      http-equiv="Content-Type">
+    <meta http-equiv="Refresh" content="5;
+      URL=http://mpto.unistudios.com/bill/HDR/">
+    <title>HDR Workflow</title>
+  </head>
+  <body>
+    <h1 align="center">Being superseeded by:</h1>
+    <p align="center"><big><big><b><a
+              href="http://mpto.unistudios.com/bill/HDR">http://mpto.unistudios.com/bill/HDR</a></b></big></big><br>
+    </p>
+    <h1 align="center"><br>
+    </h1>
+    <h1 align="center">"HDR Workflow"</h1>
+    <div align="right"> Bill Mandel<br>
+      Updated September 2013<br>
+      (Updating...October 2013)<br>
+      Updated November 2013<br>
+    </div>
+    <br>
+    <br>
+    Notes along way of testing available tools to process images along
+    an HDR/Wide Gamut workflow.<br>
+    <br>
+    <h2>Background &amp; Tools needed:</h2>
+    Using a variety of tools. This page walks through the setup and
+    purpose of each and their dependencies.<br>
+    <br>
+    <i>Sony RAW Viewer</i> to export to EXR, <i>OpenEXR</i> (newer
+    version 2.0.1 vs OS provided 1.7.0) including IlmBase, AMPAS tool <i>ctlrender,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </i>AMPAS ACES <i>ctl scripts </i>for RRT and ODT, <i>ImageMagick</i>
+    to manipulate and display exr and tiff files, <i>libtiff</i> (3.9.6
+    OS default), GNU <i>Octave</i> (for matlab processing), custom c++
+    code to convert tiff to Y'DzDx video and back to tiff, <i>HEVC
+      reference</i> encoder and decoder.<br>
+    <br>
+    <h3> RAW File Acquisition and Conversion:</h3>
+    Sony provides a tool called "RAW Viewer" that can be used on F65
+    camera MXF files to export into a variety of formats including
+    OpenEXR using ACES primaries which will retain the full range of the
+    shot. With this tool you can output at the native resolution
+    (4096x2160) or at some lower resolutions. Typically would output at
+    4096x2160 and later in PQ domain (16 bit TIFF) crop to 3840x2160 or
+    output 2048x1080 and again later crop the 16 bit PQ TIFFs to
+    1920x1080. It is unknown what scaler the RAW viewer uses to
+    downscale 2:1 for the 2k output.<br>
+    <br>
+    <a href="http://www.sonycreativesoftware.com/rawviewer">http://www.sonycreativesoftware.com/rawviewer</a><br>
+    <br>
+    Sample F65 footage is available from Blender.org from the short
+    "Tears of Steel" this footage while much of it is greenscreen has
+    live action and HDR range due to an exposed lightbulb in a desklamp
+    so is useful for testing with. It is recommended against downloading
+    this due to the size (~20GB) but listed here as an example. All use
+    of such must be properly attributed.<br>
+    <br>
+    Description:&nbsp; <br>
+    (CC) Blender Foundation | mango.blender.org<br>
+    <a
+href="http://mango.blender.org/production/xiph-org-f65-raw-linear-exr-cleaned-and-finals/">http://mango.blender.org/production/xiph-org-f65-raw-linear-exr-cleaned-and-finals/</a><br>
+    <br>
+    Actual file: (A003C007_120507.mxf)<br>
+    <a href="http://media.xiph.org/mango/raw/">http://media.xiph.org/mango/raw/</a><br>
+    <br>
+    <br>
+    <h3>ACES Processing<br>
+    </h3>
+    Toolchain: OpenEXR and ctlrender with ACES ctl scripts.<br>
+    <br>
+    <h4> Setup:</h4>
+    <h4> </h4>
+    <ul>
+      <li>Obtain and compile pieces of OpenEXR 2.0.1 from github</li>
+      <li>Obtain and compile "ctlrender"</li>
+    </ul>
+    <h4>OpenEXR:</h4>
+    <p>Decide first if system includes OpenEXR (most likely it does) and
+      if the version is reasonable.&nbsp; To have better access to
+      developers in this case chose to uninsall v1.7.0 from OS and
+      install latest 2.0.1 release. Watch dependencies because tools
+      like ImageMagick and some image viewers will need to be recompiled
+      against v2.0.1 libraries or they will fail to open EXR files.<br>
+    </p>
+    <p><a href="https://github.com/openexr/openexr/releases/tag/v2.0.1">https://github.com/openexr/openexr/releases/tag/v2.0.1</a><br>
+    </p>
+    <p>Build, test and install IlmBase first then build, test and
+      install OpenEXR. Some tests may fail due to computation precision.
+      They are working in the github project to update this and there
+      are notes in the project that explain some of the issues.<br>
+    </p>
+    <h4>ACES work flow:</h4>
+    <h5>ctlrender: </h5>
+    <p>Use the development branch of ctl. All needed to build is
+      ctlrender tool so that you have ability to run scripts on files
+      input for this project.<br>
+    </p>
+    <p>
+      <meta http-equiv="content-type" content="text/html;
+        charset=windows-1252">
+      <a href="https://github.com/ampas/CTL/releases/tag/ctl-1.5">https://github.com/ampas/CTL/releases/tag/ctl-1.5</a><br>
+    </p>
+    <h5>ACES Scripts:</h5>
+    ctl scripts for RRT, ODT and other utility functions will be
+    needed.&nbsp; I've been using an unreleased version but the standard
+    dev version should be adequate. Much more work needs to be done
+    potentially with the tone curves. The RRT tone curve appears to have
+    some impact compressing range and certainly the ODT tone curve
+    cannot be used at all for HDR material.<br>
+    <p><a href="https://github.com/ampas/aces-dev">https://github.com/ampas/aces-dev</a><br>
+    </p>
+    <p><br>
+    </p>
+    <h4>Other Content Analysis and Display:</h4>
+    <ul>
+      <li>
+        <h5>ImageMagick (useful to display images and for some image
+          manipulation functions, can't really trust it with HDR
+          material)<br>
+        </h5>
+      </li>
+      <ul>
+        <li>Make sure to uninstall, compile and re-install after
+          installing OpenEXR.</li>
+        <li>There is a fork of this called "GraphicsMagick" that some
+          reccommend with Octave but it does not support EXR files. Also
+          the current dev branches of ImageMagick are adding capability
+          for floating point files 16 or 32 bit. So for now need to
+          stick with 16 bit TIFF for Octave but via the OpenEXR library
+          ImageMagick can at least display 16 bit half-float EXR files,
+          but Octave cannot read until the above patch gets merged and
+          released.<br>
+        </li>
+      </ul>
+      <li>
+        <h5>Octave (like Matlab)</h5>
+      </li>
+      <ul>
+        <li>Must have ImageMagick compiled and installed to support 16
+          bit pixels. <br>
+        </li>
+        <ul>
+          <li>--with-quantum-depth=32 needed to build!</li>
+        </ul>
+      </ul>
+      <li>
+        <h5>GnuPlot </h5>
+      </li>
+      <ul>
+        <li>(should be default on any system) Useful for plotting PQ,
+          gamma curves.<br>
+        </li>
+      </ul>
+      <li>
+        <h5>ffmpeg (not really needed for this project due to lack of
+          support for Y'DzDx)<br>
+        </h5>
+      </li>
+      <ul>
+        <li>&nbsp;(should be default on any system) Useful to sanity
+          check/dump video files to tiff. Be careful that since it does
+          not use Y'DzDx the output is incorrect but is at least useful
+          to verify pixel data structure is correct (e.g. images not
+          scrambled, upside down, etc.) Example command that dumps a
+          10bit yuv to tiff and 8 bit yuv to tiff:</li>
+      </ul>
+    </ul>
+    <blockquote>
+      <blockquote> <code>ffmpeg -f rawvideo -vcodec rawvideo -pix_fmt
+          yuv420p -s 3840x2160 -r 24 -i YDzDx.yuv -vcodec tiff
+          tif/%04d.tiff</code><code><br>
+        </code><code><br>
+        </code><code>ffmpeg -f rawvideo -vcodec rawvideo -pix_fmt
+          yuv420p10le -s 1920x1080 -r 24 -i dec.yuv -vcodec tiff
+          tif/%04d.tiff</code><code><br>
+        </code><code> </code></blockquote>
+    </blockquote>
+    <br>
+    <h3>HEVC</h3>
+    Toolchain: HEVC HM reference encoder/decoder and MP4BOX<br>
+    <br>
+    Reference software hosted on a subversion server. You can mirror a
+    copy and compile. Started with HM11 but now HM12 and HM-12.0+RExt
+    available. Detailed pdf based manual and example encoder settings
+    files available. Would reccommend using HM-12.0+RExt but stick with
+    main10 cfg defaults and use command line to operate bit depth to 12.<br>
+    <br>
+    <a href="http://hevc.hhi.fraunhofer.de/">http://hevc.hhi.fraunhofer.de/</a><br>
+    <br>
+    Use the 'tags' folder to pick the version you want.<br>
+    <a href="https://hevc.hhi.fraunhofer.de/svn/svn_HEVCSoftware/tags/">https://hevc.hhi.fraunhofer.de/svn/svn_HEVCSoftware/tags/</a><br>
+    <br>
+    Just checkout the version you want and cd into it and compile/make.<br>
+    Example:<br>
+    <code>svn co
+https://hevc.hhi.fraunhofer.de/svn/svn_HEVCSoftware/tags/HM-12.0+RExt-4.1/</code><br>
+    <code>cd ./HM-12.0+RExt-4.1/build/linux</code><code><br>
+    </code><code> make release (or make debug since it can be buggy and
+      may need to run in gdb but about 150% slower)</code><br>
+    <br>
+    If desired edit TypeDef.h and set the compile directive to support
+    the higher bit depth (e.g. when planning to use 12 bits):<br>
+    <small><code><br>
+      </code><code><br>
+      </code><code>#define RExt__HIGH_BIT_DEPTH_SUPPORT 1 ///&lt; 0
+        (default) use data type definitions for 8-10 bit video, 1 = use
+        larger data types to allow for up to 16-bit video (originally
+        developed as part of N0188)<br>
+      </code></small><br>
+    <small><code>#define RExt__HIGH_PRECISION_FORWARD_TRANSFORM&nbsp; 1
+        ///&lt; 0 (default) use original 6-bit transform matrices for
+        both forward and inverse transform, 1 = use original matrices
+        for inverse transform and high precision matrices for forward
+        transform</code></small><br>
+    <br>
+    <br>
+    Executable's will be in 'bin' directory of base folder.
+    "TAppEncoderStatic" and "TAppDecoderStatic". The decoder runs simply
+    with a .h265 essence input file and decodes out generic planar yuv
+    which will need to be converted back to tiff for further analysis
+    against encoder input video.<br>
+    <br>
+    The encoder needs both a planar yuv file and a settings file. <br>
+    <br>
+    <b>MP4Box</b><br>
+    Sometimes you might receive a multiplexed HEVC file instead of just
+    essence. This tool can be used to extract the compressed video. <br>
+    Download: <code>svn co svn://svn.code.sf.net/p/gpac/code/trunk/gpac
+      gpac</code><br>
+    Operation/Extract: <code>MP4Box -raw 1 MuxedHEVC.mp4 -out
+      essence.265</code><br>
+    Get info on a file: <code>MP4Box -info MuxedHEVC.mp4 </code><br>
+    <br>
+    <br>
+    <br>
+    <h3>Custom Tools:</h3>
+    <br>
+    <b><a name="tiff2ydzdx"></a>Convert X'Y'Z' tiff (from PQ ODT) into
+      Y'DzDx</b> for input into TAppEncoder. <br>
+    <a href="http://mpto.unistudios.com/bill/HDR/dev/tiff2ydzdx.cpp">http://mpto.unistudios.com/bill/HDR/dev/tiff2ydzdx.cpp</a>
+    This tool converts one input file at a time and appends onto (or
+    creates) YDzDx.yuv planar 420 file. Use a second script to run a
+    whole directly of files through this to create full yuv file. This
+    tool performs color differencing and subsampling into Y'DzDx 4:2:0.
+    Subsampling is performed by averaging 2x2 blocks.<br>
+    <ul>
+      <li>Command line to build: <code>g++ -O3 tiff2ydzdx.cpp -o
+          tiff2ydzdx</code> <code>-ltiff&nbsp;</code></li>
+      <li>Command line options: (no options it runs 12 bit Y'DzDx)</li>
+      <ul>
+        <li>Color formula (default is Y'DzDx) use 709 or 2020
+          respectively for others</li>
+        <li>Bit Depth (default is 12 bits) use B10 for 10 bits</li>
+        <li>Resolution (default is 3840x2160) options are HD1920 or
+          HD960. Resolution is achieved by center cutting if the image
+          is bigger than the resolution.</li>
+        <li>(e.g. <code>tiff2ydzdx Frame.tif</code><code> 2020 B10</code>
+          would subsample and append Frame.tif using a 2020 formula and
+          10 bits onto YDzDx.yuv)<br>
+        </li>
+      </ul>
+    </ul>
+    <br>
+    <b>Convert Y'DzDx (from TAppDecoder) back into X'Y'Z' tiff</b> with
+    data MSB justified.<br>
+    <a href="http://mpto.unistudios.com/bill/HDR/dev/ydzdx2tiff.cpp">http://mpto.unistudios.com/bill/HDR/dev/ydzdx2tiff.cpp</a>
+    Run this tool with a planar yuv file as input (3840x2160, 1920x1080
+    and 960x540 only) and first create a directory named tifXYZ. This
+    tool will dump the yuv file into that directory as MSB justified
+    tiffs assuming the input data is 12 bits wide.<br>
+    <ul>
+      <li> Command line to build: <code>g++ -O3 ydzdx2tiff.cpp -o
+          ydzdx2tiff </code><code>-ltiff </code></li>
+      <li>Command line options: (no options it reverses 12 bit Y'DzDx
+        back to tiff)</li>
+      <ul>
+        <li>Color formula (default is Y'DzDx) use 709 or 2020
+          respectively for others</li>
+        <li>Bit Depth (default is 12 bits) use B10 for 10 bits</li>
+        <li>Resolution (default is 3840x2160) options are HD1920 or
+          HD960. <br>
+        </li>
+        <li>(e.g. <code>ydzdx2tiff Frame.tif</code><code> 2020 B10</code>
+          would subsample and append Frame.tif using a 2020 formula and
+          10 bits onto YDzDx.yuv)<br>
+        </li>
+      </ul>
+    </ul>
+    <br>
+    <b><a name="tifcmp"></a>Compare Tool:</b><br>
+    Basic tool to input two tiffs (any resolution) and perform
+    difference and output that into an 8 bit tiff. (make sure no pixel
+    difference is greater than 255).<br>
+    <a href="http://mpto.unistudios.com/bill/HDR/dev/tifcmp.cpp">http://mpto.unistudios.com/bill/HDR/dev/tifcmp.cpp</a><br>
+    To build and run:<br>
+    <code>g++ -O3 tifcmp.cpp -o tifcmp</code><code> </code><code>-ltiff
+      <br>
+    </code><code>tifcmp XpYpZp00001.tif Frame00001.tif </code><br>
+    <ul>
+      <li>Command line options: <br>
+      </li>
+      <ul>
+        <li>Bit Depth (default is 12 bits) use B10 for 10 bits or B16
+          for the whole tiff files to be compared.<br>
+        </li>
+        <li>Default is the difference in each channel is coded into an
+          8-bit sRGB TIFF. <br>
+        </li>
+        <li>Gain -g and offset -o options provided to allow for creation
+          of a difference image centered around gray. (e.g.&nbsp;<code>
+            tifcmp f1.tif f2.tif -g 2.0 -o 128</code> would double the
+          difference between the files and add to 128 before writing
+          into the 8-bit TIFF)<br>
+        </li>
+      </ul>
+    </ul>
+    <br>
+    <br>
+    <h2>Test and Analysis Workflow:</h2>
+    High level steps:<br>
+    <ol>
+      <li>Convert RAW to ACES EXR half</li>
+      <li>Process AMPAS RRT</li>
+      <li>Process AMPAS ODT modified for PQ into X'Y'Z' 16 bit tiffs<br>
+      </li>
+      <li>Convert X'Y'Z' tiffs into planar yuv structure file for
+        encoder</li>
+      <li>Run encoder (12 bits main10)<br>
+      </li>
+      <li>Run decoder (easy no settings needed, just file out of step 5)<br>
+      </li>
+      <li>Convert decoder Y'DzDx generic yuv output back into X'Y'Z'
+        tiff for analysis</li>
+      <li><small>[todo] analysis. Use DE2000 for color JDNs (formulas on
+          net or in HDR book) and PQ curve to see for each pixel how
+          many steps whether color JNDs or PQ JNDs difference between <br>
+        </small></li>
+      <small> </small>
+      <ul>
+        <small> </small>
+        <li><small>16 bit PQ X'Y'Z' ODT source, treated as 12 bits,
+            compressed output decoded back to 12 bit X'Y'Z'. (is 14 bit
+            needed?)<br>
+          </small></li>
+        <small> </small>
+        <li><small>16 bit PQ X'Y'Z' ODT source converted to Y'DzDx 12
+            bit and back to X'Y'Z' (just to sanity check bit depth
+            options w/o compression effects)</small></li>
+        <li><small>Once output 12 bit X'Y'Z' translate into typical TV
+            primaries (e.g. P3, NTSC 1953, 2020) and evaluate [TBD]
+            possible code use performance and PSNR/JND impact.</small></li>
+        <li><small>What are biggest drivers to visible artifacts? [HEVC,
+            subsampling, bitdepth of channel, panel dithering, code use
+            due to gamut choice ?]<br>
+          </small></li>
+      </ul>
+    </ol>
+    <b>Details:</b><br>
+    <br>
+    <big>The output of the Sony RAW viewer will be a range of frames
+      exported in ACES with 16 bit half EXR numbered files. </big><br>
+    <br>
+    <big>Use ctlrender to process the exported F65 material into PQ
+      compensated X'Y'Z'</big><br>
+    <ul>
+      <li>Example half EXR frame from RAW viewer (huge)<br>
+      </li>
+      <ul>
+        <li><a
+            href="http://mpto.unistudios.com/bill/HDR/dev/A003C007_12050700001.exr">http://mpto.unistudios.com/bill/HDR/dev/A003C007_12050700001.exr</a><br>
+        </li>
+      </ul>
+      <li>RRT (from AMPAS/ACES DEV)</li>
+      <li><a name="ODTPQ"></a>ODT (with PQ)</li>
+      <ul>
+        <li>This was modified from a DCDM ODT by setting bit depth to 16
+          replacing the 2.6 DCinema gamma with PQ and multiplying out
+          X'Y'Z' rather than RGB into a 16 bit tiff. This was done at 16
+          bits so that there is not relevant quantization noise on the
+          PQ curve calculation which was done using L-nits and V-video
+          signal level 0-1.<br>
+        </li>
+        <ul>
+          <li><a
+              href="http://mpto.unistudios.com/bill/HDR/dev/odt_PQ10k.ctl">http://mpto.unistudios.com/bill/HDR/dev/odt_PQ10k.ctl</a>(10k
+
+
+
+
+            PQ container) The ODT tone curve was deleted from this. It
+            would be better to devise a new HDR tone curve that ranges
+            more like the RRT or assume that TVs will implement this to
+            control how they saturate. TBD more work here to do.<br>
+          </li>
+          <ul>
+          </ul>
+          <li><a href="http://mpto.unistudios.com/bill/HDR/dev/PQ.ctl">http://mpto.unistudios.com/bill/HDR/dev/PQ.ctl</a>
+            (2k and 10k curves in this)<br>
+          </li>
+          <li>10K or 2K nit PQ curves could be used but focused on 10k:</li>
+          <ul>
+            <li><a
+href="http://mpto.unistudios.com/bill/HDR/dev/Perceptual%20Quantizer%20Function_1.2.pdf">http://mpto.unistudios.com/bill/HDR/dev/Perceptual%20Quantizer%20Function_1.2.pdf</a><br>
+            </li>
+            <li><a
+                href="http://mpto.unistudios.com/bill/HDR/dev/pq-adm-data.txt">http://mpto.unistudios.com/bill/HDR/dev/pq-adm-data.txt</a></li>
+          </ul>
+        </ul>
+      </ul>
+      <li>Script to do above is run to complete all the above which
+        results in a folder of numbered, PQ compensated 16 bit X'Y'Z'
+        files. This takes about 3 minutes per frame.<br>
+      </li>
+      <ul>
+        <li>Example batch script: <a
+            href="http://mpto.unistudios.com/bill/HDR/dev/A003PQ.sh">http://mpto.unistudios.com/bill/HDR/dev/A003PQ.sh</a><br>
+        </li>
+        <li><code>(example) ctlrender -verbose -ctl
+            ../ACES/wgr5.2/transforms/ctl/forward/rrt/rrt.ctl -ctl
+            odt_PQ10k.ctl ./A003/A003C007_12050700###.exr -format tiff16
+            A003PQ</code><br>
+        </li>
+      </ul>
+    </ul>
+    <br>
+    <big><a name="source"></a>Process the X'Y'Z' data into a planar
+      'yuv' style file for TAppEncoder:</big><br>
+    <ul>
+      <li>Run tiff2ydzdx on every input file and it will append into the
+        final yuv file.</li>
+      <ul>
+        <li><code>./processt2y.sh ~/Documents/EXR/A003PQ/*</code><br>
+        </li>
+        <ul>
+          <li><small>Details: <a
+                href="http://mpto.unistudios.com/bill/HDR/dev/processt2y.sh">http://mpto.unistudios.com/bill/HDR/dev/processt2y.sh</a></small></li>
+        </ul>
+        <li>To verify: Crop down the source frame to 3840x2160 just so
+          can use in comparison. <br>
+        </li>
+        <ul>
+          <li><code>tiffcrop -m 0,128,0,128
+              /home/qbit/Documents/EXR/A003PQ/A003C007_12050700001.tiff
+              A003_1crop.tif</code></li>
+        </ul>
+        <li><code></code>Verify by using ydzdx2tif on created Y'DzDx
+          file and do some comparisons:</li>
+        <ul>
+          <li>Make sure tifXYZ directory exists for output then run
+            below. Then view tiff files in tifXYZ subdirectory.<br>
+          </li>
+          <ul>
+            <li><code>ydzdx2tiff YDzDx.yuv&nbsp;</code>&nbsp;&nbsp;&nbsp;</li>
+          </ul>
+        </ul>
+        <ul>
+          <li>Example (X'Y'Z' back from Y'DzDx): <a
+              href="http://mpto.unistudios.com/bill/HDR/dev/sample/Source10k4k.tif">http://mpto.unistudios.com/bill/HDR/dev/sample/Source10k4k.tif</a><br>
+          </li>
+        </ul>
+        <ul>
+          <ul>
+          </ul>
+        </ul>
+      </ul>
+    </ul>
+    <big><br>
+      Run TAppEncoder with Y'DzDx.yuv file:</big><br>
+    <ul>
+      <li>Looking at .cfg file to start from:</li>
+      <ul>
+        <li>(base on intra and randomacces rext cfg's) <a
+href="https://hevc.hhi.fraunhofer.de/svn/svn_HEVCSoftware/tags/HM-12.0+RExt-4.0rc2/cfg/">https://hevc.hhi.fraunhofer.de/svn/svn_HEVCSoftware/tags/HM-12.0+RExt-4.0rc2/cfg/</a><br>
+        </li>
+      </ul>
+      <li>Example command to run encoder:<br>
+      </li>
+      <ul>
+        <li>cmd: <code>$EDRHOME/HEVC/$HM/bin/TAppEncoderStatic -c
+            $EDRHOME/HEVC/$HM/cfg/encoder_randoma<br>
+            ccess_main10.cfg -i $EDRDATA/YDzDx/10k/YDzDx.yuv -wdt 3840
+            -hgt 2160 -fr 24 -f $<br>
+            frames -fs $fs --InputBitDepth=12 --ExtendedPrecision=0
+            --InternalBitDepth=12 --<br>
+            IntraPeriod=24 --InputChromaFormat=420 -vui 0 -b str$qp.bin
+            -o rec$qp.yuv -q $qp<br>
+            &nbsp;2&gt;&amp;1 | tee logencoder_$qp &amp;<br>
+            <br>
+            <br>
+          </code></li>
+      </ul>
+    </ul>
+    <big>Run decoder:<br>
+      <br>
+      <small><code>./TAppDecoderStatic -b str.bin -o dec.yuv</code></small><br>
+      <br>
+    </big>
+    <p><big><a name="DecodedSample1"></a>Convert back to tif</big> (in
+      same location as str.bin)<br>
+    </p>
+    make tifXYZ folder (or empty it)<br>
+    <code>../../../tiff2ydzdx/ydzdx2tiff dec.yuv </code><br>
+    Then view tiff files in tifXYZ subdirectory.<br>
+    Example: <a
+      href="http://mpto.unistudios.com/bill/HDR/dev/sample/Decoded10k4k.tif">http://mpto.unistudios.com/bill/HDR/dev/sample/Decoded10k4k.tif</a><br>
+    Continue with your own tools or tifcmp<br>
+    <br>
+    Verify complete reversibility:<br>
+    <ul>
+      <li>undo PQ and convert back to 709 (from decoded and
+        reconstituted 12 bit X'Y'Z') using following script and
+        AMPAS/ctlrender:<br>
+      </li>
+      <ul>
+        <li><a
+href="http://mpto.unistudios.com/bill/HDR/dev/sample/PQ10k4k-709-8bit.ctl">http://mpto.unistudios.com/bill/HDR/dev/sample/PQ10k4k-709-8bit.ctl</a></li>
+      </ul>
+      <li>100% jpg of 8 bit conversion (e.g. what a TV processor would
+        do on non HDR sets)</li>
+      <ul>
+        <li><a
+href="http://mpto.unistudios.com/bill/HDR/dev/sample/DecodedConverted2-709-8bit.jpg">http://mpto.unistudios.com/bill/HDR/dev/sample/DecodedConverted2-709-8bit.jpg</a><br>
+        </li>
+      </ul>
+    </ul>
+    <ul>
+      <ul>
+      </ul>
+    </ul>
+    <br>
+    <h3>Analysis (<a
+        href="http://mpto.unistudios.com/bill/HDR/Analysis.html">next
+        page</a>)</h3>
+    <h4> Test on Extended Precision <small>(<a
+          href="http://mpto.unistudios.com/bill/HDR/dev/EP/ep.html">ep.html</a>)</small></h4>
+    <ul>
+      <li><a
+          href="http://mpto.unistudios.com/bill/HDR/dev/EP/ep.html#Part2">Also
+
+
+
+
+
+          compare performance</a> using Y'DzDx color differencing vs.
+        equations from Rec2020 and Rec 709.<br>
+      </li>
+      <ul>
+        <li>via conversion <a href="#tiff2ydzdx">tool </a><br>
+        </li>
+      </ul>
+    </ul>
+    <br>
+    <h4>Background:</h4>
+    <p>Utilized matlab files from M.S. to compare Y'DzDx color
+      differencing from Y'hdr, u'v' from HDR book.<br>
+    </p>
+    <ul>
+      <li>HDR book: <br>
+      </li>
+      <ul>
+        <li><a
+href="http://www.amazon.com/High-Dynamic-Range-Imaging-ebook/dp/B0048EJUNM/ref=sr_1_1_title_1_kin?s=books&amp;ie=UTF8&amp;qid=1377626198&amp;sr=1-1">http://www.amazon.com/High-Dynamic-Range-Imaging-ebook/dp/B0048EJUNM/ref=sr_1_1_title_1_kin?s=books&amp;ie=UTF8&amp;qid=1377626198&amp;sr=1-1</a></li>
+        <li>Chapter 4, Section 4.1 "Custom HDR Video Coding"</li>
+      </ul>
+      <li>Articles book based on:</li>
+      <ul>
+        <li><a
+            href="http://pages.bangor.ac.uk/%7Eeesa0c/pdfs/mantiuk06lchdriv.pdf">http://pages.bangor.ac.uk/~eesa0c/pdfs/mantiuk06lchdriv.pdf</a></li>
+        <li><a
+            href="http://pages.bangor.ac.uk/%7Eeesa0c/pdfs/mantiuk07hdrvc.pdf">http://pages.bangor.ac.uk/~eesa0c/pdfs/mantiuk07hdrvc.pdf</a></li>
+      </ul>
+      <li>Digital Color Management: Encoding Solutions (explains RRT and
+        Tone Curves)</li>
+      <ul>
+        <li><a
+href="http://www.amazon.com/Digital-Color-Management-Solutions-Technology/dp/047051244X/ref=sr_1_1?ie=UTF8&amp;qid=1382672724&amp;sr=8-1&amp;keywords=digital+color+encoding+solutions">http://www.amazon.com/Digital-Color-Management-Solutions-Technology/dp/047051244X/ref=sr_1_1?ie=UTF8&amp;qid=1382672724&amp;sr=8-1&amp;keywords=digital+color+encoding+solutions</a></li>
+      </ul>
+      <li>Color Gamut Mapping (likely will need this at some point)</li>
+      <ul>
+        <li><a
+href="http://www.amazon.com/Mapping-Wiley-IS-Imaging-Science-Technology/dp/0470030321/ref=sr_1_1?ie=UTF8&amp;qid=1382672669&amp;sr=8-1&amp;keywords=color+gamut+mapping">http://www.amazon.com/Mapping-Wiley-IS-Imaging-Science-Technology/dp/0470030321/ref=sr_1_1?ie=UTF8&amp;qid=1382672669&amp;sr=8-1&amp;keywords=color+gamut+mapping</a><br>
+        </li>
+      </ul>
+    </ul>
+    <br>
+  </body>
+</html>

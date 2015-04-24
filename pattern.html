@@ -1,0 +1,530 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html;
+      charset=windows-1252">
+    <title>Test Pattern 1</title>
+  </head>
+  <body>
+    <h2>Test Pattern to show effect of color differencing</h2>
+    (9/17 updated to finish pattern)<br>
+    (9/18 updated to incorporate alternate differencing)<br>
+    (9/18 added overall <a href="#Results">results</a> table)<br>
+    (working on new pattern, alternate difference view)<br>
+    <br>
+    All files mentioned located in this <a
+      href="http://mpto.unistudios.com/bill/HDR/dev/Pattern/">directory.</a><br>
+    All steps performed by <a
+      href="http://mpto.unistudios.com/bill/HDR/dev/Pattern/Pattern.sh">script.</a><br>
+    <br>
+    1. Create linear pattern with lines of various style
+    <ul>
+      <li>Linear 12 bits: 5%, 10%, 20%, 50%</li>
+      <li>Procedural construction with each line pattern half constant
+        and half as ramp from 0 to %</li>
+      <li>3 pattern styles: single pixel, single pixel every other 2x2,
+        double pixel straddling 2x2's and horizontal pattern. Results in
+        3840x2160 image with visually 32 blocks</li>
+      <ul>
+        <li><a
+            href="http://mpto.unistudios.com/bill/HDR/dev/Pattern/pattern.cpp">pattern.cpp</a></li>
+      </ul>
+      <li>Results in 16 bit tiff file (12 bits MSB justified)</li>
+      <ul>
+        <li><a
+            href="http://mpto.unistudios.com/bill/HDR/dev/Pattern/Pattern.tif">Pattern.tif</a></li>
+      </ul>
+    </ul>
+    2. Apply PQ for 10k Nits using ctlrender<br>
+    <ul>
+      <li>Applied via <a
+          href="http://mpto.unistudios.com/bill/HDR/dev/Pattern/PQ10k.ctl">PQ10k.ctl</a></li>
+      <li>444 output is MSB justified across 16 bits but only 12 top
+        being relevant (will get removed in next step). <br>
+      </li>
+      <ul>
+        <li><a
+            href="http://mpto.unistudios.com/bill/HDR/dev/Pattern/PQPattern.tiff">PQPattern.tiff</a></li>
+        <li>For gimp, 8-bits computer graphic analysis this source was
+          converted to 709 8-bit tiff</li>
+        <ul>
+          <li><a
+href="http://mpto.unistudios.com/bill/HDR/dev/Pattern/PQPattern709-8bit.tiff">PQPattern709-8bit.tiff</a><br>
+          </li>
+        </ul>
+      </ul>
+    </ul>
+    <div align="center"><a
+href="http://mpto.unistudios.com/bill/HDR/dev/Pattern/PQPattern709-8bit.tiff"><img
+          alt="PQ Encoded 444 Pattern"
+          src="http://mpto.unistudios.com/bill/HDR/dev/Pattern/PQPattern709.jpg"
+          border="2" height="270" width="480"></a><br>
+    </div>
+    <ul>
+    </ul>
+    <p>3. Apply Y'DzDx color subsampling, using 2x2 averaging for DzDx
+      processing.<br>
+    </p>
+    <ul>
+      <li><a
+href="http://mpto.unistudios.com/bill/HDR/HDR%20Workflow.html#tiff2ydzdx">tiff2ydzdx.cpp</a>
+        from other testing.</li>
+      <li>Results in <a
+          href="http://mpto.unistudios.com/bill/HDR/dev/Pattern/YDzDx.yuv">Y'DzDx.yuv</a>
+        file in 420 planer format.<br>
+      </li>
+    </ul>
+    4. Convert back to 444 X'Y'Z' from 420 <br>
+    <ul>
+      <li>using <a
+href="http://mpto.unistudios.com/bill/HDR/HDR%20Workflow.html#tiff2ydzdx">ydzdx2tiff.cpp</a>
+        from other testing</li>
+      <li>Results in MSB justified 12 bits in 16 bit tiff container</li>
+      <li><a
+href="http://mpto.unistudios.com/bill/HDR/dev/Pattern/tifXYZ/XpYpZp00000.tif">Result</a></li>
+    </ul>
+    <p>5. So...how to view it or examine values? Can try 709.<br>
+    </p>
+    <ul>
+      <li>Convert result from #4 into 8-bit 709 using ctlrender</li>
+      <li>ctl <a
+          href="http://mpto.unistudios.com/bill/HDR/dev/PQ10k4k-709-8bit.ctl">script</a>
+        to inverse PQ and matrix XYZ to 709 RGB and apply 709 gamma</li>
+      <li><a
+href="http://mpto.unistudios.com/bill/HDR/dev/Pattern/Pattern709-8bit.tiff">Result</a>
+        is an 8bit tiff that can examine in gimp. <font color="#cc0000">!!
+
+
+
+
+
+          WARNING - you can't "look" at or "examine" XYZ files because
+          they are not equal energy like computer RGB !! So it is a
+          multi-step process of ACES to get back to 709 as above
+          (inverse PQ and 709 ODT down to 8 bits also)</font><br>
+      </li>
+    </ul>
+    <div align="center"><a
+href="http://mpto.unistudios.com/bill/HDR/dev/Pattern/Pattern709-8bit.tiff"><img
+          alt="examine 709"
+          src="http://mpto.unistudios.com/bill/HDR/dev/Pattern/Examine709.jpg"
+          border="2" height="397" width="600"></a><br>
+    </div>
+    <ul>
+      <li>or can convert into quality=100% <a
+href="http://mpto.unistudios.com/bill/HDR/dev/Pattern/Pattern709-8bit.jpg">jpeg
+
+
+
+
+
+
+
+
+
+          for web viewing</a></li>
+    </ul>
+    <p>6. Run comparisons against PQ compensated 444 source.<br>
+    </p>
+    <ul>
+      <li>&nbsp; ImageMagick 'compare' set to calculate PSNR for each
+        channel. <br>
+      </li>
+    </ul>
+    <blockquote>
+      <blockquote><code>&nbsp; Channel distortion: PSNR<br>
+          &nbsp;&nbsp;&nbsp; red: 56.2479 (X')<br>
+          &nbsp;&nbsp;&nbsp; green: 85.5708 (Y')<br>
+          &nbsp;&nbsp;&nbsp; blue: 48.7529 (Z')<br>
+        </code><br>
+      </blockquote>
+    </blockquote>
+    <ul>
+      <li><a
+          href="http://mpto.unistudios.com/bill/HDR/HDR%20Workflow.html#tifcmp">tifcmp</a>
+        to generate 8 bit tiff with difference (but basically shows
+        about 10 step X' difference and 20 step Z' difference) MSE
+        calculated for each channel and for a "Distance" between the two
+        pixel triples.<br>
+      </li>
+      <ul>
+        <li>
+          <pre>Max differences: X' 141, Y' 1, Z' 69<br>MSE Y = 0.154752    PSNR (dB) = 80.350840 <br>MSE X= 44.692812    PSNR (dB) = 55.744822 <br>MSE Z= 214.383492    PSNR (dB) = 48.935286 <br>MSE Distance= 259.231056    PSNR (dB) = 48.110329 <br></pre>
+        </li>
+        <li>8 bit tiff <a
+            href="http://mpto.unistudios.com/bill/HDR/dev/Pattern/Compare.tif">image
+
+
+
+
+
+
+
+
+
+            of differences</a> X difference is red value, Y difference
+          is green value and Z difference is blue value. Can examine
+          this in gimp or photoshop. Each pixel value is the actual <code>ABS(difference)</code>
+          in that channel for that pixel.<br>
+        </li>
+      </ul>
+    </ul>
+    <p><br>
+    </p>
+    <p><a href="http://mpto.unistudios.com/bill/HDR/dev/Pattern/log">Logfile</a>
+      of entire script run for reference.<br>
+      <br>
+    </p>
+    <p>You can certainly see the slight color shift similar to what was
+      shown from an earlier test. It is subtle and limited to these
+      small edge regions so would have most potential for observing in
+      real world images that had visual characteristics that somewhat
+      matched the sample.<br>
+      &nbsp; <br>
+    </p>
+    <h3><a name="Results"></a>Results and Comparison between Straight
+      Y'DzDx differencing and Compensated Y'DzwDxw differencing tuned
+      for 100 and 500 nits.<br>
+    </h3>
+    <table border="1" cellpadding="2" cellspacing="2" width="100%">
+      <tbody>
+        <tr>
+          <td valign="top"><b>Method:</b><b><br>
+            </b></td>
+          <td colspan="4" rowspan="1" align="center" valign="top"><b>YDzDx</b></td>
+          <td colspan="4" rowspan="1" align="center" bgcolor="#99ff99"
+            valign="top"><b>YDzwDxw 500</b><b><br>
+            </b></td>
+          <td colspan="4" rowspan="1" align="center" valign="top"><b>YDzwDxw
+
+
+
+
+
+              100</b><b><br>
+            </b></td>
+        </tr>
+        <tr>
+          <td valign="top"><b>Domain:</b><b><br>
+            </b></td>
+          <td colspan="2" rowspan="1" align="center" valign="top"><b>Linear</b><b><br>
+            </b></td>
+          <td colspan="2" rowspan="1" align="center" valign="top"><b>PQ</b></td>
+          <td colspan="2" rowspan="1" align="center" valign="top"><b>Linear</b></td>
+          <td colspan="2" rowspan="1" align="center" valign="top"><b>PQ</b></td>
+          <td colspan="2" rowspan="1" align="center" valign="top"><b>Linear</b></td>
+          <td colspan="2" rowspan="1" align="center" valign="top"><b>PQ</b></td>
+        </tr>
+        <tr>
+          <td valign="top"><br>
+          </td>
+          <td align="center" valign="top"><small><small><code>maximum<br>
+                  difference</code><code><br>
+                </code></small></small></td>
+          <td align="center" valign="top"><small><small><code>PSNR (dB)</code><code><br>
+                </code></small></small></td>
+          <td align="center" valign="top"><small><small><code>maximum<br>
+                  difference</code></small></small><small><small><code>
+                </code></small></small></td>
+          <td align="center" valign="top"><small><small><code>PSNR (dB)</code><code><br>
+                </code></small></small></td>
+          <td align="center" valign="top"><small><small><code>maximum<br>
+                  difference</code></small></small><small><small><code>
+                </code></small></small></td>
+          <td align="center" valign="top"><small><small><code>PSNR (dB)</code><code><br>
+                </code></small></small></td>
+          <td align="center" valign="top"><small><small><code>maximum<br>
+                  difference</code></small></small><small><small><code>
+                </code></small></small></td>
+          <td align="center" valign="top"><small><small><code>PSNR (dB)</code><code><br>
+                </code></small></small></td>
+          <td align="center" valign="top"><small><small><code>maximum<br>
+                  difference</code></small></small><small><small><code>
+                </code></small></small></td>
+          <td align="center" valign="top"><small><small><code>PSNR (dB)</code><code><br>
+                </code></small></small></td>
+          <td align="center" valign="top"><small><small><code>maximum<br>
+                  difference</code></small></small><small><small><code>
+                </code></small></small></td>
+          <td align="center" valign="top"><small><small><code>PSNR (dB)</code><code><br>
+                </code></small></small></td>
+        </tr>
+        <tr>
+          <td align="center" bgcolor="#ffcccc" valign="top"><b>X</b><b><br>
+            </b></td>
+          <td align="center" valign="top"><big><code>52</code><code><br>
+              </code></big></td>
+          <td align="center" valign="top"><big><code>51.4</code><code><br>
+              </code></big></td>
+          <td align="center" valign="top"><big><code>141</code><code><br>
+              </code></big></td>
+          <td align="center" valign="top"><big><code>55.7</code><code><br>
+              </code></big></td>
+          <td align="center" valign="top"><big><code>27</code><code><br>
+              </code></big></td>
+          <td align="center" valign="top"><big><code>56.9</code><code><br>
+              </code></big></td>
+          <td align="center" valign="top"><big><code>136</code><code><br>
+              </code></big></td>
+          <td align="center" valign="top"><big><code>62.9</code><code><br>
+              </code></big></td>
+          <td align="center" valign="top"><big><code>44</code><code><br>
+              </code></big></td>
+          <td align="center" valign="top"><big><code>52.0</code><code><br>
+              </code></big></td>
+          <td align="center" valign="top"><big><code>136</code><code><br>
+              </code></big></td>
+          <td align="center" valign="top"><big><code>59.9</code><code><br>
+              </code></big></td>
+        </tr>
+        <tr>
+          <td align="center" bgcolor="#99ff99" valign="top"><b>Y</b><b><br>
+            </b></td>
+          <td align="center" valign="top"><big><code>2</code><code><br>
+              </code></big></td>
+          <td align="center" valign="top"><big><code>81.9</code><code><br>
+              </code></big></td>
+          <td align="center" valign="top"><big><code>1</code><code><br>
+              </code></big></td>
+          <td align="center" valign="top"><big><code>80.3</code><code><br>
+              </code></big></td>
+          <td align="center" valign="top"><big><code>2</code><code><br>
+              </code></big></td>
+          <td align="center" valign="top"><big><code>81.2</code><code><br>
+              </code></big></td>
+          <td align="center" valign="top"><big><code>1</code><code><br>
+              </code></big></td>
+          <td align="center" valign="top"><big><code>80.4</code></big></td>
+          <td align="center" valign="top"><big><code>2</code><code><br>
+              </code></big></td>
+          <td align="center" valign="top"><big><code>81.9</code><code><br>
+              </code></big></td>
+          <td align="center" valign="top"><big><code>1</code><code><br>
+              </code></big></td>
+          <td align="center" valign="top"><big><code>80.4</code><code><br>
+              </code></big></td>
+        </tr>
+        <tr>
+          <td align="center" bgcolor="#33ccff" valign="top"><b>Z</b><b><br>
+            </b></td>
+          <td align="center" valign="top"><big><code>104</code><code><br>
+              </code></big></td>
+          <td align="center" valign="top"><big><code>44.0</code><code><br>
+              </code></big></td>
+          <td align="center" valign="top"><big><code>69</code><code><br>
+              </code></big></td>
+          <td align="center" valign="top"><big><code>48.9</code><code><br>
+              </code></big></td>
+          <td align="center" valign="top"><big><code>40</code><code><br>
+              </code></big></td>
+          <td align="center" valign="top"><big><code>55.7</code><code><br>
+              </code></big></td>
+          <td align="center" valign="top"><big><code>62</code><code><br>
+              </code></big></td>
+          <td align="center" valign="top"><big><code>64.1</code><code><br>
+              </code></big></td>
+          <td align="center" valign="top"><big><code>67</code><code><br>
+              </code></big></td>
+          <td align="center" valign="top"><big><code>48.6</code><code><br>
+              </code></big></td>
+          <td align="center" valign="top"><big><code>60</code><code><br>
+              </code></big></td>
+          <td align="center" valign="top"><big><code>58.7</code><code><br>
+              </code></big></td>
+        </tr>
+        <tr>
+          <td align="center" bgcolor="#cccccc" valign="top"><b>D</b><b><br>
+            </b></td>
+          <td align="center" valign="top"><big><code><br>
+              </code></big></td>
+          <td align="center" valign="top"><big><code>43.3</code><code><br>
+              </code></big></td>
+          <td align="center" valign="top"><big><code><br>
+              </code></big></td>
+          <td align="center" valign="top"><big><code>48.1</code><code><br>
+              </code></big></td>
+          <td align="center" valign="top"><big><code><br>
+              </code></big></td>
+          <td align="center" valign="top"><big><code>47.8</code><code><br>
+              </code></big></td>
+          <td align="center" valign="top"><big><code><br>
+              </code></big></td>
+          <td align="center" valign="top"><big><code>57.1</code><code><br>
+              </code></big></td>
+          <td align="center" valign="top"><big><code><br>
+              </code></big></td>
+          <td align="center" valign="top"><big><code>41.8</code><code><br>
+              </code></big></td>
+          <td align="center" valign="top"><big><code><br>
+              </code></big></td>
+          <td align="center" valign="top"><big><code>51.2</code><code><br>
+              </code></big></td>
+        </tr>
+      </tbody>
+    </table>
+    <p><br>
+    </p>
+    <h4> <a name="ResultFiles"></a>Result files archived:</h4>
+    <p>So...you want to look at or examine in 8-bits on a
+      computer?&nbsp; Below 8-bit TIFF (and jpgs for mobile phone
+      viewing) take care of this and are indicated with **<br>
+    </p>
+    <p>The "source" will not have the color shift but the 3 variants
+      500, 100 and YDzDx will.<br>
+    </p>
+    <p> <a href="http://mpto.unistudios.com/bill/HDR/dev/Pattern/500/">YDzwDxw
+
+
+
+
+
+        500</a><br>
+    </p>
+    <ul>
+      <li><a
+href="http://mpto.unistudios.com/bill/HDR/dev/Pattern/500/tifXYZ/XpYpZp00000.tif">PQ
+
+
+
+
+
+          X'Y'Z' tiff </a>MSB justified 12 bits in 16 from YDzwDxw 500</li>
+      <ul>
+        <li><a name="500-420"></a>**8-bit 709 <a
+href="http://mpto.unistudios.com/bill/HDR/dev/Pattern/500/Pattern709-8bit.tiff">TIFF
+
+
+
+
+
+            (prefer)</a> or <a
+href="http://mpto.unistudios.com/bill/HDR/dev/Pattern/500/Pattern709-8bit.jpg">JPEG
+
+
+
+
+
+            version</a> of this (needed to actually see/measure the
+          color)<br>
+        </li>
+      </ul>
+      <li><a
+href="http://mpto.unistudios.com/bill/HDR/dev/Pattern/500/PQPattern-Decoded-Linear.tiff">Linear
+
+
+
+
+
+          XYZ tiff</a> MSB justified 12 bits in 16 from YDzwDxw</li>
+      <ul>
+        <li><small>(Inverse PQ via ctlrender <a
+              href="http://mpto.unistudios.com/bill/HDR/dev/Pattern/INVPQ10k.ctl">script.</a>)</small><br>
+        </li>
+      </ul>
+    </ul>
+    <p><a href="http://mpto.unistudios.com/bill/HDR/dev/Pattern/100/">YDzwDxw
+
+
+
+
+
+        100</a><br>
+    </p>
+    <ul>
+      <li><a
+href="http://mpto.unistudios.com/bill/HDR/dev/Pattern/100/tifXYZ/XpYpZp00000.tif">PQ
+
+
+
+
+
+          X'Y'Z' tiff </a>MSB justified 12 bits in 16 from YDzwDxw 500</li>
+      <ul>
+        <li><a name="100-420"></a>**8-bit 709 <a
+href="http://mpto.unistudios.com/bill/HDR/dev/Pattern/100/Pattern709-8bit.tiff">TIFF
+
+
+
+
+
+            (prefer)</a> or <a
+href="http://mpto.unistudios.com/bill/HDR/dev/Pattern/100/Pattern709-8bit.jpg">JPEG
+
+
+
+
+
+            version</a> of this.<br>
+        </li>
+      </ul>
+      <li><a
+href="http://mpto.unistudios.com/bill/HDR/dev/Pattern/100/PQPattern-Decoded-Linear.tiff">Linear
+
+
+
+
+
+          XYZ tiff</a> MSB justified 12 bits in 16 from YDzwDxw</li>
+      <ul>
+        <li><small>(Inverse PQ via ctlrender <a
+              href="http://mpto.unistudios.com/bill/HDR/dev/Pattern/INVPQ10k.ctl">script.</a>)</small><br>
+        </li>
+      </ul>
+    </ul>
+    <p><a href="http://mpto.unistudios.com/bill/HDR/dev/Pattern/tifXYZ/">YDzDx</a><br>
+    </p>
+    <ul>
+      <li><a
+href="http://mpto.unistudios.com/bill/HDR/dev/Pattern/tifXYZ/XpYpZp00000.tif">PQ
+
+
+
+
+
+          X'Y'Z' tiff </a>MSB justified 12 bits in 16 from YDzwDxw 500</li>
+      <ul>
+        <li><a name="DzDz-420"></a>**8-bit <a
+href="http://mpto.unistudios.com/bill/HDR/dev/Pattern/Pattern709-8bit.tiff">TIFF
+
+
+
+
+
+            (prefer)</a> or <a
+href="http://mpto.unistudios.com/bill/HDR/dev/Pattern/Pattern709-8bit.jpg">JPEG
+
+
+
+
+
+            version</a> of this.<br>
+        </li>
+      </ul>
+      <li><a
+href="http://mpto.unistudios.com/bill/HDR/dev/Pattern/PQPattern-Decoded-Linear.tiff">Linear
+
+
+
+
+
+          XYZ tiff</a> MSB justified 12 bits in 16 from YDzwDxw</li>
+      <ul>
+        <li><small>(Inverse PQ via ctlrender <a
+              href="http://mpto.unistudios.com/bill/HDR/dev/Pattern/INVPQ10k.ctl">script.</a>)</small></li>
+      </ul>
+    </ul>
+    <small><br>
+    </small><a name="444-SRC"></a>**Source as <a
+href="http://mpto.unistudios.com/bill/HDR/dev/Pattern/PQPattern709-8bit.tiff">709
+
+
+
+
+      8-Bit TIFF</a><br>
+    <br>
+    <br>
+    <small><br>
+    </small>
+    <p> </p>
+  </body>
+</html>

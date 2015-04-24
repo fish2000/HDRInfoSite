@@ -1,0 +1,357 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>SetupHDRLUTSoftware</title>
+  </head>
+  <body>
+    <h2 align="center">Setting up to process HDR with CTL and LUTs</h2>
+    <br>
+    There are a number of prerequisites and dependencies I've found with
+    installing these various tools to process images and video. I've
+    tried to collect a lot of it here. While this is intended directly
+    for <a href="http://www.slackware.com/">Slackware Linux</a> (as I
+    find the package system easy to work with and easy to build from
+    source when needed) I prefer. The general steps may be applicable
+    more broadly.<br>
+    <br>
+    The set of tools trying to end up with are:<br>
+    <blockquote> <i>ctlrender (from AMPAS)</i><br>
+      <i> OpenColorIO (from Sony)</i><br>
+      <i> OpenImageIO (from </i><i><a
+          href="https://sites.google.com/site/openimageio/home">Larry
+          Gritz</a></i><i>)</i><br>
+    </blockquote>
+    <br>
+    Libraries:<br>
+    <blockquote> <i>tiff4.0.3+ (needed by OpenColorIO)</i><br>
+      <i> IlmBase (needed to process OpenEXR files)</i><br>
+      <i> OpenEXR</i><br>
+    </blockquote>
+    <br>
+    Tools:<br>
+    <blockquote> <i>YUV (custom for this project)</i><br>
+      <i> ffmpeg</i><br>
+      <i> x265</i><br>
+      <i> ImageMagick</i><br>
+      <i> Geeqie (good image viewer with integrated histogram)</i><br>
+    </blockquote>
+    <br>
+    <hr size="2" width="100%"><br>
+    #<br>
+    #<br>
+    # <br>
+    <br>
+    <b> # Install Slackware normally</b><br>
+    #<br>
+    <br>
+    <b># Replace the v3.x of tiff with v4.03+:</b><br>
+    <br>
+    # Remove libtiff unless v4.0.3+<br>
+    # remove old libtiff dependencies (e.g. geeqie, imageMagick)<br>
+    # slackpkg remove libtiff<br>
+    # get and build new 4.0.3 tiff<br>
+    <br>
+    <code> lftp -c "open
+      http://mirror.metrocast.net/slackware/slackware-current/source/l/;
+      mirror libtiff"</code><br>
+    <br>
+    # edit slackbuild for libtiff<br>
+    # delete or comment out the following:<br>
+    <br>
+    <blockquote> <code>#zcat
+        $CWD/tiff-3.9.7_CVE-2012-4447_CVE-2012-4564_CVE-2013-1960_CVE-2013-1961.diff.gz
+
+
+        | patch -p1 --verbose || exit 1</code><code><br>
+      </code><code> #zcat $CWD/tiff-3.9.7_CVE-2013-4231.diff.gz | patch
+        -p1 --verbose || exit 1</code><code><br>
+      </code><code> #zcat $CWD/tiff-3.9.7_CVE-2013-4232.diff.gz | patch
+        -p1 --verbose || exit 1</code><code><br>
+      </code><code> #zcat $CWD/tiff-3.9.7_CVE-2013-4244.diff.gz | patch
+        -p1 --verbose || exit 1</code><code><br>
+      </code></blockquote>
+    # run the edited libtiff.SlackBuild as root<br>
+    # after building : installpkg /tmp/&lt;.txz&gt; <br>
+    <br>
+    <br>
+    <b> </b><b># Setup OpenEXR: (remove what came with Slackware)</b><br>
+    <br>
+    # Uninstall IlmBase and OpenEXR from core distro<br>
+    <blockquote>$ slackpkg remove ilmbase<br>
+      $ slackpkg remove openexr<br>
+    </blockquote>
+    <br>
+    # get and build new tagged releases from github<br>
+    # latest release:<br>
+    <a href="https://github.com/openexr/openexr/releases">
+      https://github.com/openexr/openexr/releases</a><br>
+    # build Ilmbase first then OpenEXR<br>
+    <br>
+    <br>
+    <b># Setup AMPAS software:</b><br>
+    <br>
+    # Build and install ACES Container<br>
+    <a href="https://github.com/ampas/aces_container/releases">
+      https://github.com/ampas/aces_container/releases</a><br>
+    <br>
+    <br>
+    # Get and build ctlrender<br>
+    <a href="https://github.com/ampas/CTL">https://github.com/ampas/CTL</a><br>
+    <br>
+    # remove ctl scripts the install puts into /usr/local/lib/CTL<br>
+    # set path in .profile<br>
+    # set up CTL module path in profile or .profile<br>
+    #<br>
+    <blockquote> <code>export EDRHOME=/home/qbit/Documents/EDR</code><code><br>
+      </code><code> export EDRDATA=/home/qbit/Documents/EDR/EDRDATA</code><code><br>
+      </code><code> export
+CTL_MODULE_PATH="/usr/local/lib/CTL:$EDRHOME/ACES/CTL:$EDRHOME/ACES/transforms/ctl/utilities"</code><code><br>
+      </code></blockquote>
+    #<br>
+    <br>
+    <br>
+    <br>
+    <b> # Uninstall imageMagick</b><br>
+    <blockquote><code> slackpkg remove imagemagick</code><br>
+    </blockquote>
+    #<br>
+    # Get slackbuild <br>
+    <blockquote><code> lftp -c "open
+        http://slackbuilds.org/mirror/slackware/slackware64-current/source/xap/;
+        mirror imagemagick"</code><br>
+    </blockquote>
+    #<br>
+    # site to get current version:<br>
+    <a href="http://www.imagemagick.org/script/download.php">
+      http://www.imagemagick.org/script/download.php</a><br>
+    <blockquote><code> wget
+http://mirrors-usa.go-parts.com/mirrors/ImageMagick/ImageMagick-6.9.0-0.tar.gz</code><code><br>
+      </code></blockquote>
+    # adjust slackbuild to point to newer version<br>
+    #<br>
+    # add to configure above "without modules line"<br>
+    <blockquote> <code>&nbsp; --with-quantum-depth=32 \</code><code><br>
+      </code><code> &nbsp; --enable-hdri=yes \</code><code><br>
+      </code></blockquote>
+    #<br>
+    # build from source imageMagick as root running modified slackbuild<br>
+    # was missing a libEGL.la file and found this info to restore it
+    (due to NVidia installer)<br>
+https://devtalk.nvidia.com/default/topic/670178/nvidia-installer-331-20-deletes-silently-usr-lib-libegl-la/<br>
+    # install using installpkg /tmp/imagemagick....<br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <b> # Get and build ffmpeg from alien</b><br>
+    <blockquote><code> &nbsp; lftp -c "open
+        http://www.slackware.com/~alien/slackbuilds/&lt;program&gt;/;
+        mirror build"</code><code><br>
+      </code></blockquote>
+    <a
+      href="http://www.slackware.com/%7Ealien/slackbuilds/ffmpeg/build/">
+      &nbsp; http://www.slackware.com/~alien/slackbuilds/ffmpeg/build/</a><br>
+    <br>
+    <br>
+    <b> # Get and build x265 </b><br>
+    # <u>set in make makefiles for high bit depth</u>, Be really
+    careful that either run by path to the build directory executable or
+    make sure if you install that it is not replaced later by a
+    different 8-bit version of x265!<br>
+    <br>
+    <blockquote><code> &nbsp; hg clone
+        https://bitbucket.org/multicoreware/x265</code><code><br>
+      </code></blockquote>
+    <br>
+    <br>
+    <b> # reinstall dependencies that break due to libtiff being
+      replaced (e.g. geeqie) and rebuild from source</b><br>
+    <blockquote><code> lftp -c "open
+        http://mirror.pw/slackware/slackware64-14.1/source/xap/; mirror
+        geeqie"</code><code><br>
+      </code></blockquote>
+    <br>
+    <b> # Get and install ACES transforms (v0.7.1)</b><br>
+    <a href="https://github.com/ampas/aces-dev/releases/tag/v0.7.1">
+      https://github.com/ampas/aces-dev/releases/tag/v0.7.1</a><br>
+    <br>
+    (NOTE: may want to evaluate and switch over to v1.0...but not sure
+    want to give up some benefits of hue correction and other pieces of
+    v0.7.1....TBD...)<br>
+    <br>
+    <b># get and install CTL scripts</b><br>
+    <blockquote> <code>cd $EDRHOME/ACES</code><code><br>
+      </code><code> git clone https://github.com/quantizationbit/CTLs
+        CTL</code><code><br>
+      </code></blockquote>
+    <br>
+    <b> # Get and install YUV tools</b><br>
+    <blockquote> <code>cd $EDRHOME/Tools/</code><code><br>
+      </code><code> git clone https://github.com/quantizationbit/YUV</code><code><br>
+      </code><code>cd YUV</code><code><br>
+      </code><code> make</code><code><br>
+      </code></blockquote>
+    <br>
+    <br>
+    <b> # Get and install sbopkg</b> (additional package manager)<br>
+    <a href="http://www.sbopkg.org/downloads.php">
+      http://www.sbopkg.org/downloads.php</a><br>
+    <br>
+    # install libraw<br>
+    # install mpv (video player)<br>
+    # install qt5 (opencv and oiio depends on it)<br>
+    # install opencv (depends on ffmpeg) (using sbopkg)<br>
+    # install blas (needed for octave)<br>
+    # install lapack (needed for octave)<br>
+    # install octave (using sbopkg) (depends on tiff and imagemagick and
+    others)<br>
+    <br>
+    <br>
+    <b> # get and build OpenColorIO tools: (depends on everything else)</b><br>
+    # OpenColorIO aka OCIO<br>
+    <a href="https://github.com/imageworks/OpenColorIO">
+      https://github.com/imageworks/OpenColorIO</a><br>
+    <blockquote> <code>git clone
+        https://github.com/imageworks/OpenColorIO.git OCIO</code><code><br>
+      </code><code> cd OCIO</code><code><br>
+      </code><code> mkdir build</code><code><br>
+      </code><code> cd build</code><code><br>
+      </code><code> cmake ..</code><code><br>
+      </code><code> make</code><code><br>
+      </code><code> make install (as root)</code><code><br>
+      </code></blockquote>
+    # will need to come back later and rebuild to get tools that need
+    OIIO<br>
+    # but OIIO needs at least this much OCIO to build<br>
+    <br>
+    <b> # OpenColorIO-Configs</b><br>
+    <a href="https://github.com/imageworks/OpenColorIO-Configs">
+      https://github.com/imageworks/OpenColorIO-Configs</a><br>
+    <blockquote><code> git clone
+        https://github.com/imageworks/OpenColorIO-Configs.git
+        OpenColorIO-Configs</code><code><br>
+      </code></blockquote>
+    <br>
+    # Set up a config (or use mine below)<br>
+    # goto EDR directory so can see OCIO and OpenColorIO-Configs
+    directories<br>
+    <blockquote><code> git clone
+        https://github.com/quantizationbit/OCIO_CONFIG OCIO_CONFIG</code><code><br>
+      </code></blockquote>
+    <blockquote><code> mkdir OCIO_CONFIG/luts</code><code><br>
+      </code></blockquote>
+    # no luts for now they are made during processing, the config just
+    has a lot of numbered placeholders for them.<br>
+    <br>
+    <br>
+    <b> # OpenImageIO: "oiio"</b><br>
+    # make sure ffmpeg (via alien), opencv (via sbopkg), qt5 (via
+    sbopkg) and libraw (via sbopkg) have been previously installed<br>
+    <a href="https://github.com/OpenImageIO/oiio">
+      https://github.com/OpenImageIO/oiio</a><br>
+    <blockquote><code> git clone git://github.com/OpenImageIO/oiio.git
+        OpenImageIO</code><code><br>
+      </code></blockquote>
+    # use make help to learn more<br>
+    # edit CMakeLists.txt to change macro:<br>
+    &nbsp;&nbsp;&nbsp; #add_definitions ("-D__STDC_LIMIT_MACROS")<br>
+    <blockquote><code> &nbsp;&nbsp;&nbsp; add_definitions
+        ("-D__STDC_CONSTANT_MACROS")</code><code><br>
+      </code></blockquote>
+    <blockquote><code> make USE_FFMPEG=1 USE_OCIO=1 USE_LIVBRAW=1</code><code><br>
+      </code></blockquote>
+    # copy release apps into /usr/local/bin (as root)<br>
+    <blockquote><code> cp -fv $EDRHOME/OpenImageIO/dist/linux64/bin/*
+        /usr/local/bin</code><code><br>
+      </code></blockquote>
+    <br>
+    &nbsp;<br>
+    # <br>
+    <b> # Setup OCIO configuration to include color and LUTS</b><br>
+    #<br>
+    # in ~/.profile (or somewhere else that runs when opening a
+    terminal)<br>
+    <blockquote> <code>source /usr/local/share/ocio/setup_ocio.sh</code><code><br>
+      </code><code> export OCIO="$EDRHOME/OCIO_CONFIG/config-qbit.ocio"</code><code><br>
+      </code><code> export OIIO="$EDRHOME/OpenImageIO/dist/linux64"</code><code><br>
+      </code><code> export OIIO_LIBRARY_PATH="$OIIO/lib"</code><code><br>
+      </code></blockquote>
+    <br>
+    # source .profile<br>
+    <blockquote><code> &nbsp;source ~/.profile</code><code><br>
+      </code></blockquote>
+    <br>
+    # Test with:<br>
+    <blockquote><code> &nbsp;
+        $EDRHOME/OpenImageIO/dist/linux64/bin/oiiotool --help</code><code><br>
+      </code></blockquote>
+    <br>
+    <b> # rebuild OCIO with OIIO (yes...needed to get LUT tools made)</b><br>
+    # back to build directory of OCIO<br>
+    <blockquote><code> &nbsp; cd $EDRHOME/OCIO/build</code><code><br>
+      </code></blockquote>
+    # rebuild with pointer to OpenImageIO dist/linux64 directory &nbsp;<br>
+    <blockquote> <code>&nbsp;cmake -D OIIO_PATH=$OIIO ..</code><code><br>
+      </code><code> &nbsp;make</code><code><br>
+      </code></blockquote>
+    &nbsp;# su to root then<br>
+    <blockquote><code> &nbsp;make install</code><code><br>
+      </code></blockquote>
+    &nbsp;<br>
+    # copy OpenImageIO python file to site directory (as root)<br>
+    <blockquote><code> cp -fv $EDRHOME/OpenImageIO/dist/linux64/python/*
+        /usr/local/lib/python2.7/site-packages/ </code><code><br>
+      </code></blockquote>
+    &nbsp;<br>
+    <b> # add library of OIIO to /etc/ld.so.conf</b><br>
+    &nbsp; # e.g.&nbsp;
+    /home/mpto/Documents/EDR/OpenImageIO/dist/linux64/lib<br>
+    &nbsp; # e.g. /home/qbit/Documents/EDR/OpenImageIO/dist/linux64/lib<br>
+    &nbsp; # run ldconfig <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    Now you at least have some software to experiment with LUTs based on
+    CTL.<br>
+    <br>
+    <hr size="2" width="100%"><br>
+    <br>
+    If you want to experiment with some the the LUTs I've been making
+    using this process you may want to install the OCIO_CONFIG I'm using
+    and a project that has some various scripts that build these LUTs:<br>
+    <br>
+    <b>my OCIO_CONFIG:</b><br>
+    <a href="https://github.com/quantizationbit/OCIO_CONFIG">https://github.com/quantizationbit/OCIO_CONFIG</a><br>
+    <br>
+    <code>git clone https://github.com/quantizationbit/OCIO_CONFIG</code><code>.git
+      OCIO_CONFIG</code><br>
+    <br>
+    <br>
+    <b> LUT scripts:</b><br>
+    <a href="https://github.com/quantizationbit/MIX">https://github.com/quantizationbit/MIX</a><br>
+    <br>
+    <code>git clone https://github.com/quantizationbit/MIX</code><code>.git
+      MIX</code><br>
+    <br>
+    <b>CTLs (based on ACES v0.7.1)</b><br>
+    <a href="https://github.com/quantizationbit/CTLs">https://github.com/quantizationbit/CTLs</a><br>
+    <br>
+    <code>git clone https://github.com/quantizationbit/CTLs</code><code>.git
+      CTL</code><br>
+    <br>
+    <b>CTLs (based on ACES 1.0)</b><br>
+    <a href="https://github.com/quantizationbit/CTLa1">https://github.com/quantizationbit/CTLa1</a><br>
+    <br>
+    <code>git clone https://github.com/quantizationbit/CTLa1.git CTLa1</code><br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+  </body>
+</html>

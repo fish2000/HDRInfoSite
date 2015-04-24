@@ -1,0 +1,124 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <meta content="text/html; charset=windows-1252"
+      http-equiv="Content-Type">
+    <title>Analysis</title>
+  </head>
+  <body>
+    <h1 align="center">Analysis</h1>
+    <br>
+    First tests with one frame out of a I-Frame run: (comparing output
+    of tiff2ydzdx tool with output of decoder converted back to tiff)<br>
+    <br>
+    <br>
+    Use "<a href="HDR%20Workflow.html#tifcmp">tifcmp</a>" tool to
+    analyze<br>
+    [ToDo] make this useful beyond debugging workflow.<br>
+    (tifcmp updated week of 18th for use with test patterns the below
+    data could now be more comprehensive)<br>
+    <br>
+    <br>
+    <br>
+    Example 10k4k I-Frame compressed output:<br>
+    <a href="http://mpto.unistudios.com/bill/HDR/dev/sample/str.bin">http://mpto.unistudios.com/bill/HDR/dev/sample/str.bin</a><br>
+    <br>
+    This image shows the difference in each X'Y'Z' pixel written into a
+    full resolution 8bit image with the abs of the difference written X'
+    diff -&gt; R, Y' diff -&gt; G, Z' diff -&gt; B. The <a
+      href="HDR%20Workflow.html#source">source</a> was the color
+    differenced Y'DzDx input to HEVC decoded back to X'Y'Z' and the <a
+      href="HDR%20Workflow.html#DecodedSample1">output</a> was the HEVC
+    compressed and decoded back to Y'DzDx and then to X'Y'Z':<br>
+    <a
+href="http://mpto.unistudios.com/bill/HDR/dev/sample/Compare10k4kHEVC-SRC.tif">http://mpto.unistudios.com/bill/HDR/dev/sample/Compare10k4kHEVC-SRC.tif</a><br>
+    <br>
+    <br>
+    Another test was to use the ImageMagick tool "compare" set to output
+    PSNR where R = X', G = Y' and B = Z' in the printouts:<br>
+    <br>
+    <br>
+    Case #1 compare <a href="HDR%20Workflow.html#ODTPQ">ODT w/PQ source</a>
+    to <a href="HDR%20Workflow.html#source">Y'DzDx conversion result</a>:
+    This just compares effect of subsampling. Compare tool is part of
+    ImageMagick.<br>
+    <br>
+    <code>qbit@0xFFFB:~/Documents/HEVC/HM_HEVC/HM-12.0+RExt-4.0rc2/bin/10k4k$
+
+      compare -verbose -depth 16 -metric PSNR ODTPQ10k4k.tif
+      Source10k4k.tif ODTPQ-SourceYUV.jpg<br>
+      ODTPQ10k4k.tif TIFF 3840x2160 3840x2160+0+0 16-bit TrueColor
+      DirectClass 66.37MB 0.090u 0:00.090<br>
+      Source10k4k.tif TIFF 3840x2160 3840x2160+0+0 16-bit TrueColor
+      DirectClass 66.37MB 0.090u 0:00.089<br>
+      Image: ODTPQ10k4k.tif<br>
+      &nbsp; Channel distortion: PSNR<br>
+      &nbsp;&nbsp;&nbsp; red: 44.6657<br>
+      &nbsp;&nbsp;&nbsp; green: 82.986<br>
+      &nbsp;&nbsp;&nbsp; blue: 36.0792<br>
+      &nbsp;&nbsp;&nbsp; alpha: inf<br>
+      &nbsp;&nbsp;&nbsp; all: 41.5365<br>
+      ODTPQ10k4k.tif=&gt;ODTPQ-SourceYUV.jpg TIFF 3840x2160
+      3840x2160+0+0 16-bit DirectClass 492KB 3.730u 0:03.750<br>
+      <br>
+    </code><code><code></code><br>
+    </code><br>
+    <br>
+    Case #2 compare <a href="HDR%20Workflow.html#source">Y'DzDx
+      conversion result</a> with <a
+      href="HDR%20Workflow.html#DecodedSample1">HEVC compressed output</a>:
+    (this directly compares color subsampled input with decoded
+    compressed output)<br>
+    <code></code><code><br>
+      qbit@0xFFFB:~/Documents/HEVC/HM_HEVC/HM-12.0+RExt-4.0rc2/bin/10k4k$
+
+      compare -verbose -depth 16 -metric PSNR Source10k4k.tif
+      Decoded10k4k.tif SRCyuv-Decoded.jpg<br>
+      Source10k4k.tif TIFF 3840x2160 3840x2160+0+0 16-bit TrueColor
+      DirectClass 66.37MB 0.090u 0:00.090<br>
+      Decoded10k4k.tif TIFF 3840x2160 3840x2160+0+0 16-bit TrueColor
+      DirectClass 66.37MB 0.090u 0:00.089<br>
+      Image: Source10k4k.tif<br>
+      &nbsp; Channel distortion: PSNR<br>
+      &nbsp;&nbsp;&nbsp; red: 40.6564<br>
+      &nbsp;&nbsp;&nbsp; green: 42.9844<br>
+      &nbsp;&nbsp;&nbsp; blue: 36.6588<br>
+      &nbsp;&nbsp;&nbsp; alpha: inf<br>
+      &nbsp;&nbsp;&nbsp; all: 40.5539<br>
+      Source10k4k.tif=&gt;SRCyuv-Decoded.jpg TIFF 3840x2160
+      3840x2160+0+0 16-bit DirectClass 537KB 3.650u 0:03.669<br>
+      <br>
+      <br>
+      <br>
+    </code><br>
+    Case #3 compare <a href="HDR%20Workflow.html#ODTPQ">ODT w/PQ source</a>
+    to&nbsp;&nbsp; <a href="HDR%20Workflow.html#DecodedSample1">HEVC
+      compressed output</a>: (this compares non color subsamples to
+    decoded compressed output back to X'Y'Z'). <code> <br>
+      <br>
+      qbit@0xFFFB:~/Documents/HEVC/HM_HEVC/HM-12.0+RExt-4.0rc2/bin/10k4k$
+
+      compare -verbose -depth 16 -metric PSNR ODTPQ10k4k.tif
+      Decoded10k4k.tif ODTPQ-Decoded-Diff.jpg<br>
+      ODTPQ10k4k.tif TIFF 3840x2160 3840x2160+0+0 16-bit TrueColor
+      DirectClass 66.37MB 0.090u 0:00.089<br>
+      Decoded10k4k.tif TIFF 3840x2160 3840x2160+0+0 16-bit TrueColor
+      DirectClass 66.37MB 0.130u 0:00.140<br>
+      Image: ODTPQ10k4k.tif<br>
+      &nbsp; Channel distortion: PSNR<br>
+      &nbsp;&nbsp;&nbsp; red: 38.0917<br>
+      &nbsp;&nbsp;&nbsp; green: 42.9845<br>
+      &nbsp;&nbsp;&nbsp; blue: 32.5973<br>
+      &nbsp;&nbsp;&nbsp; alpha: inf<br>
+      &nbsp;&nbsp;&nbsp; all: 37.2391<br>
+      ODTPQ10k4k.tif=&gt;ODTPQ-Decoded-Diff.jpg TIFF 3840x2160
+      3840x2160+0+0 16-bit DirectClass 492KB 3.880u 0:03.969<br>
+    </code><br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+  </body>
+</html>
