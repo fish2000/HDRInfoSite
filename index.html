@@ -16,18 +16,27 @@
     </div>
     <br>
     <a href="SetupHDRLUTSoftware.html">[How to set up for LUT
-      processing]</a><br>
+      processing]</a>&nbsp; : This is the list of pretty much all the
+    open source sofware that can be used for these projects from
+    rendering with direct computation (CTLs) or LUTs and YUV, HEVC
+    etc...<br>
     <br>
     <a href="GradingRenderingandCompression.html">[Grading, Rendering
-      and Compression]</a><br>
+      and Compression</a> : This is a list of the various processes that
+    can be used to render raw/scene EXR files, grade and compress these
+    files.<br>
     <br>
     <a href="quantization.html">[10/12/14 bit, bitdepth, YUV and HEVC
       quantization analysis...page deleted by accident]. The work is on
-      github and will reconstruct this at some point]</a><br>
+      github and will reconstruct this at some point]</a> : Need to
+    remake this page.<br>
     <br>
-    <a href="P6/index.html">[banding test pattern]</a><br>
+    <a href="P6/index.html">[banding test pattern]</a> : Animated
+    banding test pattern.<br>
     <br>
-    <b>Overview:</b><br>
+    <hr size="2" width="100%"><br>
+    <br>
+    <b>Workflow Overview:</b> [need to re-create this page]<br>
     <br>
     <img alt="" src="High_Level_Diagram.png" height="381" width="959"><br>
     <br>
@@ -406,6 +415,7 @@ https://hevc.hhi.fraunhofer.de/svn/svn_HEVCSoftware/tags/HM-13.0+RExt-6.0/</code
     <h3><small>Custom Tools:<small><i>&nbsp; <small><small><big>[</big>updated
 
 
+
                 to eliminate carriage of 'alpha' channel in tiffs across
                 tools and ctl scripts 3-14-2014], moved to github and
                 incorporated 1k PQ constant luminance 2020 in June/July
@@ -499,6 +509,7 @@ https://hevc.hhi.fraunhofer.de/svn/svn_HEVCSoftware/tags/HM-13.0+RExt-6.0/</code
       <a href="http://mpto.unistudios.com/bill/HDR/dev/tifcmp.cpp">http://mpto.unistudios.com/bill/HDR/dev/tifcmp.cpp</a><br>
       To build and run:<br>
       <code>g++ -O3 tifcmp.cpp -o tifcmp</code><code> </code><code>-ltiff
+
 
 
         <br>
@@ -630,11 +641,13 @@ https://hevc.hhi.fraunhofer.de/svn/svn_HEVCSoftware/tags/HM-13.0+RExt-6.0/</code
 
 
 
+
                   $EDRHOME/ACES/CTL/odt_PQ10k2020.ctl TMP$c1".exr"
                   -format tiff16 $PQ"2020/"$numStr".tif&nbsp;</code></code></small></li>
           <small> </small>
           <li><small><a
                 href="http://mpto.unistudios.com/bill/HDR/dev2/technicolor.sh">Here
+
 
 
 
@@ -666,6 +679,7 @@ https://hevc.hhi.fraunhofer.de/svn/svn_HEVCSoftware/tags/HM-13.0+RExt-6.0/</code
         <small> </small>
         <li><small><a
               href="http://mpto.unistudios.com/bill/HDR/dev2/makeYUV.sh">Example
+
 
 
 
@@ -708,6 +722,7 @@ https://hevc.hhi.fraunhofer.de/svn/svn_HEVCSoftware/tags/HM-13.0+RExt-6.0/</code
         <li><small>cmd: <code>$EDRHOME/HEVC/HM/bin/TAppEncoderHighBitDepthStatic
 
 
+
               -c $EDRHOME/HEVC/HM/cfg/encoder_randomaccess_main10.cfg -i
               $EDRDATA/YDzDx/Technicolor/SeinePQ2020/YDzDx.yuv -wdt 1920
               -hgt 1080 -fr 25 -f $frames -fs $fs --InputBitDepth=12
@@ -738,6 +753,7 @@ https://hevc.hhi.fraunhofer.de/svn/svn_HEVCSoftware/tags/HM-13.0+RExt-6.0/</code
         <li><small>cmd: <code>$EDRHOME/HEVC/HM/bin/TAppDecoderHighBitDepthStatic
 
 
+
               -b str$qp.bin -o dec$qp.yuv <br>
             </code></small></li>
         <small> </small>
@@ -760,6 +776,7 @@ https://hevc.hhi.fraunhofer.de/svn/svn_HEVCSoftware/tags/HM-13.0+RExt-6.0/</code
 
 
 
+
           </a></b>of entire encoding/decoding process:</big></p>
     <small> <br>
       Afterward to view will need to convert every TIF file decoded (as
@@ -770,6 +787,7 @@ https://hevc.hhi.fraunhofer.de/svn/svn_HEVCSoftware/tags/HM-13.0+RExt-6.0/</code
       <br>
       Here is an <a
         href="http://mpto.unistudios.com/bill/HDR/dev2/2020-2-709-500.sh">example
+
 
 
 
@@ -787,8 +805,10 @@ https://hevc.hhi.fraunhofer.de/svn/svn_HEVCSoftware/tags/HM-13.0+RExt-6.0/</code
 
 
 
+
             PQ</a> with 2020 (or <a
             href="http://mpto.unistudios.com/bill/HDR/dev2/INVPQ10k-2-XYZ.ctl">inverse
+
 
 
 
@@ -801,10 +821,12 @@ https://hevc.hhi.fraunhofer.de/svn/svn_HEVCSoftware/tags/HM-13.0+RExt-6.0/</code
 
 
 
+
           </a>(could have been in inverse PQ)</small></li>
       <small> </small>
       <li><small><a
             href="http://mpto.unistudios.com/bill/HDR/dev2/XYZ2ACES.ctl">XYZ
+
 
 
 
@@ -814,6 +836,7 @@ https://hevc.hhi.fraunhofer.de/svn/svn_HEVCSoftware/tags/HM-13.0+RExt-6.0/</code
       <small> </small>
       <li><small><a
 href="http://mpto.unistudios.com/bill/HDR/dev2/odt_rec709_full_500nits.ctl">ODT
+
 
 
 
